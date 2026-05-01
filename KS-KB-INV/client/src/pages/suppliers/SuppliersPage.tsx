@@ -205,6 +205,7 @@ const SuppliersPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pr-4">S/N</th>
                                 <th className="py-3 pr-4">Supplier ID</th>
                                 <th className="py-3 pr-4">Name</th>
                                 <th className="py-3 pr-4">Contact Person</th>
@@ -217,8 +218,9 @@ const SuppliersPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
-                            {filteredSuppliers.map((supplier) => (
+                            {filteredSuppliers.map((supplier, idx) => (
                                 <tr key={supplier._id} className="transition hover:bg-slate-50/70">
+                                    <td className="py-4 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                     <td className="py-4 pr-4">
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">

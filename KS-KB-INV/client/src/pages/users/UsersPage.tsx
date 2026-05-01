@@ -134,10 +134,7 @@ const UsersPage = () => {
             setError('Name is required');
             return;
         }
-        if (!formData.email.trim()) {
-            setError('Email is required');
-            return;
-        }
+
         if (!formData.mobileNumber.trim()) {
             setError('Mobile number is required');
             return;
@@ -202,6 +199,7 @@ const UsersPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pr-4">S/N</th>
                                 <th className="py-3 pr-4">User</th>
                                 <th className="py-3 pr-4">Email</th>
                                 <th className="py-3 pr-4">Mobile</th>
@@ -219,8 +217,9 @@ const UsersPage = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsers.map((user) => (
+                                filteredUsers.map((user, idx) => (
                                     <tr key={user._id} className="transition hover:bg-slate-50/80">
+                                        <td className="py-4 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                         <td className="py-4 pr-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-brand via-brand-dark to-purple-600">

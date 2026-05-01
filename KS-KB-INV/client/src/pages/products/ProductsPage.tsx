@@ -243,6 +243,7 @@ const ProductsPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pr-4">S/N</th>
                                 <th className="py-3 pr-4">Code</th>
                                 <th className="py-3 pr-4">Product</th>
                                 <th className="py-3 pr-4">Category</th>
@@ -254,9 +255,10 @@ const ProductsPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
-                            {products.map((product) => {
+                            {products.map((product, idx) => {
                                 return (
                                     <tr key={product._id} className="transition hover:bg-slate-50/70">
+                                        <td className="py-4 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                         <td className="py-4 pr-4 font-semibold text-slate-900">{product.sku ?? '—'}</td>
                                         <td className="py-4 pr-4">
                                             <p className="font-semibold text-slate-900">{product.name}</p>

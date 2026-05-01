@@ -8,13 +8,7 @@ const createUserValidationSchema = z.object({
     role: z.enum(['admin', 'manager', 'staff'], {
       required_error: 'Role is required',
     }),
-    email: z
-      .string({
-        required_error: 'Email is required',
-      })
-      .email({
-        message: 'Invalid email',
-      }),
+    email: z.string().email({ message: 'Invalid email' }).optional().or(z.literal('')),
     mobileNumber: z.string({ required_error: 'Mobile number is required' }),
     password: z.string({
       required_error: 'Password is required',

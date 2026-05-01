@@ -18,6 +18,7 @@ type ProductFormData = {
     unit: string;
     supplier: string;
     description: string;
+    sellingPrice: string;
 };
 
 const ProductFormPage = () => {
@@ -50,6 +51,7 @@ const ProductFormPage = () => {
         unit: '',
         supplier: '',
         description: '',
+        sellingPrice: '',
     });
 
     const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
@@ -71,6 +73,7 @@ const ProductFormPage = () => {
                     unit: product.unit,
                     supplier: product.supplierId || '',
                     description: product.description || '',
+                    sellingPrice: product.sellingPrice != null ? String(product.sellingPrice) : '',
                 });
             });
         }
@@ -105,9 +108,13 @@ const ProductFormPage = () => {
 
         try {
             if (isEditMode && id) {
-                // In edit mode, only send name and description
                 const updatePayload = {
                     name: formData.name,
+                    sku: formData.sku || undefined,
+                    categoryName: formData.category || undefined,
+                    unit: formData.unit || undefined,
+                    supplierId: formData.supplier || undefined,
+                    sellingPrice: formData.sellingPrice !== '' ? parseFloat(formData.sellingPrice) : undefined,
                     description: formData.description || undefined,
                 };
                 await updateProduct({ id, data: updatePayload }).unwrap();
@@ -202,11 +209,7 @@ const ProductFormPage = () => {
                                             type="text"
                                             value={formData.sku}
                                             onChange={(e) => handleChange('sku', e.target.value)}
-                                            disabled={isEditMode}
-                                            className={`w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 transition-all ${isEditMode
-                                                ? 'bg-slate-100 cursor-not-allowed opacity-60'
-                                                : 'bg-slate-50/50 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20'
-                                                }`}
+                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
                                             placeholder="e.g., PRD-001"
                                         />
                                     </div>
@@ -218,11 +221,7 @@ const ProductFormPage = () => {
                                         <select
                                             value={formData.category}
                                             onChange={(e) => handleChange('category', e.target.value)}
-                                            disabled={isEditMode}
-                                            className={`w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 transition-all ${isEditMode
-                                                ? 'bg-slate-100 cursor-not-allowed opacity-60'
-                                                : 'bg-slate-50/50 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20'
-                                                }`}
+                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
                                         >
                                             <option value="">Select a category</option>
                                             {categories.map((category) => (
@@ -243,11 +242,7 @@ const ProductFormPage = () => {
                                         <select
                                             value={formData.unit}
                                             onChange={(e) => handleChange('unit', e.target.value)}
-                                            disabled={isEditMode}
-                                            className={`w-full rounded-xl border ${errors.unit ? 'border-danger' : 'border-slate-200'} px-4 py-3 text-sm text-slate-900 transition-all ${isEditMode
-                                                ? 'bg-slate-100 cursor-not-allowed opacity-60'
-                                                : 'bg-slate-50/50 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20'
-                                                }`}
+                                            className={`w-full rounded-xl border ${errors.unit ? 'border-danger' : 'border-slate-200'} bg-slate-50/50 px-4 py-3 text-sm text-slate-900 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all`}
                                         >
                                             <option value="">Select a unit</option>
                                             {units.map((unit) => (
@@ -268,11 +263,7 @@ const ProductFormPage = () => {
                                         <select
                                             value={formData.supplier}
                                             onChange={(e) => handleChange('supplier', e.target.value)}
-                                            disabled={isEditMode}
-                                            className={`w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 transition-all ${isEditMode
-                                                ? 'bg-slate-100 cursor-not-allowed opacity-60'
-                                                : 'bg-slate-50/50 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20'
-                                                }`}
+                                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
                                         >
                                             <option value="">Select a supplier</option>
                                             {suppliers.filter((s: Supplier) => s.status === 'active').map((supplier: Supplier) => (
@@ -282,6 +273,22 @@ const ProductFormPage = () => {
                                             ))}
                                         </select>
                                     </div>
+                                </div>
+
+                                {/* Selling Price */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                        Selling Price
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={formData.sellingPrice}
+                                        onChange={(e) => handleChange('sellingPrice', e.target.value)}
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+                                        placeholder="0.00"
+                                    />
                                 </div>
 
                                 {/* Description */}

@@ -548,6 +548,7 @@ const CustomerLedgerPage = () => {
                         <table className="min-w-full divide-y divide-slate-100 text-xs print-table">
                             <thead className="bg-slate-50 print:bg-white">
                                 <tr>
+                                    <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">S/N</th>
                                     <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Order ID</th>
                                     <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Date</th>
                                     <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Amount</th>
@@ -558,7 +559,7 @@ const CustomerLedgerPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 bg-white print:divide-slate-200">
-                                {filteredOrders.map((order) => {
+                                {filteredOrders.map((order, idx) => {
                                     const orderReturns = filteredReturns.filter(
                                         ret => ret.orderId === order._id || 
                                                ret.order === order._id ||

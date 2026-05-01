@@ -737,6 +737,7 @@ const DamagesPage = () => {
                         <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                             <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                                 <tr>
+                                    <th className="py-3 pr-4">S/N</th>
                                     <th className="py-3 pr-4">Damage ID</th>
                                     <th className="py-3 pr-4">Supplier</th>
                                     <th className="py-3 pr-4">Amount</th>

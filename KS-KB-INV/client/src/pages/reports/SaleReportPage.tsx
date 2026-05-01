@@ -331,6 +331,7 @@ const SaleReportPage = () => {
                     <table className="w-full divide-y divide-slate-200 text-xs">
                         <thead className="bg-slate-50">
                             <tr>
+                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Date</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Category</th>
@@ -344,13 +345,14 @@ const SaleReportPage = () => {
                         <tbody className="divide-y divide-slate-200 bg-white">
                             {filteredProductSales.length === 0 ? (
                                 <tr>
-                                    <td colSpan={8} className="px-2 py-4 text-center text-xs text-slate-500">
+                                    <td colSpan={9} className="px-2 py-4 text-center text-xs text-slate-500">
                                         {searchQuery ? 'No products found matching your search' : 'No product sales found'}
                                     </td>
                                 </tr>
                             ) : (
-                                filteredProductSales.map((sale) => (
+                                filteredProductSales.map((sale, idx) => (
                                     <tr key={sale._id} className="hover:bg-slate-50">
+                                        <td className="px-2 py-1.5 text-xs text-slate-400">{idx + 1}</td>
                                         <td className="px-2 py-1.5 whitespace-nowrap text-xs text-slate-600">
                                             {dayjs(sale.date).format('DD MMM YYYY')}
                                         </td>

@@ -229,6 +229,7 @@ const SupplierStatisticsSection = ({
                         <table className="min-w-full text-sm">
                             <thead className="text-xs uppercase text-slate-500 border-b border-slate-100">
                                 <tr>
+                                    <th className="py-3 text-left">S/N</th>
                                     <th className="py-3 text-left">Supplier</th>
                                     <th className="py-3 text-right">Total Purchases</th>
                                     <th className="py-3 text-right">Purchase Count</th>

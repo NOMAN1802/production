@@ -156,6 +156,7 @@ const PurchaseDetailsModal = ({ purchaseId, onClose }: PurchaseDetailsModalProps
                         <table className="w-full mb-4 text-[10px]">
                             <thead>
                                 <tr className="border-b-2 border-slate-900">
+                                    <th className="text-left py-1.5 px-1 text-[9px] font-bold text-slate-900 uppercase tracking-tight">S/N</th>
                                     <th className="text-left py-1.5 px-1 text-[9px] font-bold text-slate-900 uppercase tracking-tight">
                                         Item
                                     </th>

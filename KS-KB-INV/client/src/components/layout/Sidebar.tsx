@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
 import {
+    BookOpenIcon,
     ChartBarIcon,
     ClipboardDocumentListIcon,
     Cog6ToothIcon,
@@ -9,6 +10,7 @@ import {
     ShoppingBagIcon,
     ShoppingCartIcon,
     UserGroupIcon,
+    UserPlusIcon,
     XMarkIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -23,6 +25,7 @@ import {
     BuildingStorefrontIcon,
     BanknotesIcon,
     ClockIcon,
+    QueueListIcon,
 } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -58,6 +61,7 @@ const getNavigation = (userRole?: string): NavigationItem[] => {
                 { name: 'Categories', to: '/categories', icon: TagIcon },
                 { name: 'Units', to: '/units', icon: RectangleStackIcon },
                 { name: 'Suppliers', to: '/suppliers', icon: BuildingStorefrontIcon },
+                { name: 'Pending Products', to: '/products/pending', icon: QueueListIcon },
             ]
         },
         {
@@ -72,7 +76,18 @@ const getNavigation = (userRole?: string): NavigationItem[] => {
                 { name: 'Sales Returns', to: '/returns', icon: ArrowUturnLeftIcon },
             ]
         },
-        { name: 'Customers', to: '/customers', icon: UserGroupIcon, badge: null },
+        {
+            name: 'Customers',
+            to: '/customers',
+            icon: UserGroupIcon,
+            badge: null,
+            hasDropdown: true,
+            subItems: [
+                { name: 'Create Customer', to: '/customers/new', icon: UserPlusIcon },
+                { name: 'Customer List', to: '/customers', icon: UserGroupIcon },
+                { name: 'Customer Ledger', to: '/customers/ledger', icon: BookOpenIcon },
+            ]
+        },
         { name: 'Damages', to: '/damages', icon: ExclamationTriangleIcon, badge: null },
         {
             name: 'Reports',
@@ -165,6 +180,7 @@ const SidebarContent = ({ collapsed = false, isMobile = false, onClose }: Sideba
                                         <NavLink
                                             key={subItem.name}
                                             to={subItem.to}
+                                            end
                                             onClick={isMobile ? onClose : undefined}
                                             className={({ isActive }) =>
                                                 `group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-all duration-200 ${isActive
@@ -213,6 +229,7 @@ const SidebarContent = ({ collapsed = false, isMobile = false, onClose }: Sideba
                                             <NavLink
                                                 key={subItem.name}
                                                 to={subItem.to}
+                                                end
                                                 onClick={isMobile ? onClose : undefined}
                                                 className={({ isActive }) =>
                                                     `flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all duration-150 ${isActive

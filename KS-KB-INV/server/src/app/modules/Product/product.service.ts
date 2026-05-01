@@ -265,13 +265,20 @@ const updateProduct = async (
     throw new AppError(httpStatus.NOT_FOUND, 'Product not found');
   }
 
-  // Only allow updating name, sellingPrice, and description
-  const allowedFields = ['name', 'sellingPrice', 'description'];
+  const allowedFields = ['name', 'sku', 'categoryName', 'unit', 'supplierId', 'sellingPrice', 'description'];
   const updateData: any = {};
 
   for (const field of allowedFields) {
     if (field in payload && payload[field as keyof TProduct] !== undefined) {
       updateData[field] = payload[field as keyof TProduct];
+    }
+  }
+
+  // When categoryName changes, also resolve and update the category ObjectId
+  if (updateData.categoryName) {
+    const category = await Category.findOne({ name: updateData.categoryName, isDeleted: false });
+    if (category) {
+      updateData.category = category._id;
     }
   }
 

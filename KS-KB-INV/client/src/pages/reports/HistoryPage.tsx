@@ -224,7 +224,7 @@ const HistoryPage = () => {
                     <table className="w-full text-[10px]">
                         <thead className="bg-slate-50">
                             <tr>
-                                <th className="px-2 py-1.5 text-left font-semibold text-slate-700 w-6"></th>
+                                <th className="px-2 py-1.5 text-left font-semibold text-slate-700 w-10">S/N</th>
                                 <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Product</th>
                                 <th className="px-2 py-1.5 text-left font-semibold text-slate-700">SKU</th>
                                 <th className="px-2 py-1.5 text-left font-semibold text-slate-700">Category</th>

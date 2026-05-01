@@ -12,7 +12,7 @@ const ShellLayout = () => {
             <div className="flex w-full flex-col">
                 <Topbar onMenuClick={() => setSidebarOpen(true)} />
                 <main className="flex-1 bg-slate-50/60 px-4 py-6 lg:px-10">
-                    <div className="mx-auto max-w-7xl space-y-8">
+                    <div className="mx-auto max-w-7xl 2xl:max-w-full space-y-8">
                         <Outlet />
                     </div>
                 </main>

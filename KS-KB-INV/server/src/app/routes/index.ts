@@ -13,6 +13,8 @@ import { categoryRoutes } from '../modules/Category/category.route';
 import { unitRoutes } from '../modules/Unit/unit.route';
 import { supplierRoutes } from '../modules/Supplier/supplier.route';
 import { purchaseRoutes } from '../modules/Purchase/purchase.route';
+import { pendingProductRoutes } from '../modules/PendingProduct/pending-product.route';
+import { customerRoutes } from '../modules/Customer/customer.route';
 
 const router = express.Router();
 
@@ -72,6 +74,14 @@ const moduleRoutes = [
   {
     path: '/purchases',
     route: purchaseRoutes,
+  },
+  {
+    path: '/pending-products',
+    route: pendingProductRoutes,
+  },
+  {
+    path: '/customers',
+    route: customerRoutes,
   },
 ];
 

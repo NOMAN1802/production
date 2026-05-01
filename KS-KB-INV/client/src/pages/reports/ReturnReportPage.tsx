@@ -303,6 +303,7 @@ const ReturnReportPage = () => {
                     <table className="w-full divide-y divide-slate-200 text-xs">
                         <thead className="bg-slate-50">
                             <tr>
+                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Return Date</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Supplier</th>

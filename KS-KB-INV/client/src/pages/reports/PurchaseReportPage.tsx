@@ -260,6 +260,7 @@ const PurchaseReportPage = () => {
                     <table className="w-full divide-y divide-slate-200 text-xs">
                         <thead className="bg-slate-50">
                             <tr>
+                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Purchase Date</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Title</th>
                                 <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Quantity</th>

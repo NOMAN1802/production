@@ -6,6 +6,8 @@ import ProductsPage from '@/pages/products/ProductsPage';
 import ProductFormPage from '@/pages/products/ProductFormPage';
 import PurchaseProductPage from '@/pages/products/PurchaseProductPage';
 import PurchaseListPage from '@/pages/purchases/PurchaseListPage';
+import PendingProductsPage from '@/pages/pending-products/PendingProductsPage';
+import AddPendingProductsPage from '@/pages/pending-products/AddPendingProductsPage';
 import CategoriesPage from '@/pages/categories/CategoriesPage';
 import UnitsPage from '@/pages/units/UnitsPage';
 import SuppliersPage from '@/pages/suppliers/SuppliersPage';
@@ -21,6 +23,9 @@ import DamagesPage from '@/pages/damages/DamagesPage';
 import ReportDamagePage from '@/pages/damages/ReportDamagePage';
 import CustomersPage from '@/pages/customers/CustomersPage';
 import CustomerLedgerPage from '@/pages/customers/CustomerLedgerPage';
+import CustomerLedgerListPage from '@/pages/customers/CustomerLedgerListPage';
+import CreateCustomerPage from '@/pages/customers/CreateCustomerPage';
+import EditCustomerPage from '@/pages/customers/EditCustomerPage';
 import ReportsPage from '@/pages/reports/ReportsPage';
 import PurchaseReportPage from '@/pages/reports/PurchaseReportPage';
 import SaleReportPage from '@/pages/reports/SaleReportPage';
@@ -78,6 +83,8 @@ function App() {
           <Route path="products/new" element={<ProductFormPage />} />
           <Route path="products/edit/:id" element={<ProductFormPage />} />
           <Route path="products/purchase" element={<PurchaseProductPage />} />
+          <Route path="products/pending" element={<PendingProductsPage />} />
+          <Route path="products/pending/new" element={<AddPendingProductsPage />} />
           <Route path="purchases" element={<PurchaseListPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="units" element={<UnitsPage />} />
@@ -91,6 +98,9 @@ function App() {
           <Route path="damages" element={<DamagesPage />} />
           <Route path="damages/report" element={<ReportDamagePage />} />
           <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers/new" element={<CreateCustomerPage />} />
+          <Route path="customers/ledger" element={<CustomerLedgerListPage />} />
+          <Route path="customers/:id/edit" element={<EditCustomerPage />} />
           <Route path="customers/:customerName/ledger" element={<CustomerLedgerPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="reports/purchase" element={<PurchaseReportPage />} />

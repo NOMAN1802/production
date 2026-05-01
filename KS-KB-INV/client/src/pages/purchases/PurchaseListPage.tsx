@@ -8,14 +8,16 @@ import {
     EyeIcon,
     PrinterIcon,
     ChevronDownIcon,
+    PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
-import { useGetPurchasesQuery } from '@/services/purchasesApi';
+import { useGetPurchasesQuery, type Purchase } from '@/services/purchasesApi';
 import { useGetSuppliersQuery } from '@/services/suppliersApi';
 import PurchaseDetailsModal from './PurchaseDetailsModal';
+import EditPurchaseModal from './EditPurchaseModal';
 import DateRangeSelector from '@/pages/reports/DateRangeSelector';
 
 type DateRangeType = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
@@ -26,6 +28,7 @@ const PurchaseListPage = () => {
     const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [viewingPurchaseId, setViewingPurchaseId] = useState<string | null>(null);
+    const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
     const [dateRange, setDateRange] = useState<DateRangeType>('all');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
@@ -181,6 +184,14 @@ const PurchaseListPage = () => {
 
     const handleCloseDetailsModal = () => {
         setViewingPurchaseId(null);
+    };
+
+    const handleEditPurchase = (purchase: Purchase) => {
+        setEditingPurchase(purchase);
+    };
+
+    const handleCloseEditModal = () => {
+        setEditingPurchase(null);
     };
 
     const handlePrint = useReactToPrint({
@@ -679,7 +690,7 @@ const PurchaseListPage = () => {
                                     <th className="py-3 pr-4">Supplier</th>
                                     <th className="py-3 pr-4">Purchase On</th>
                                     <th className="py-3 pr-4">Amount</th>
-                                    <th className="py-3">View/Print</th>
+                                    <th className="py-3">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -725,6 +736,13 @@ const PurchaseListPage = () => {
                                                         title="Print Purchase"
                                                     >
                                                         <PrinterIcon className="h-4 w-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleEditPurchase(purchase)}
+                                                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-all hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600"
+                                                        title="Edit Purchase"
+                                                    >
+                                                        <PencilSquareIcon className="h-4 w-4" />
                                                     </button>
                                                 </div>
                                             </td>
@@ -790,6 +808,12 @@ const PurchaseListPage = () => {
                     onClose={handleCloseDetailsModal}
                 />
             </div>
+
+            {/* Edit Purchase Modal */}
+            <EditPurchaseModal
+                purchase={editingPurchase}
+                onClose={handleCloseEditModal}
+            />
         </>
     );
 };
