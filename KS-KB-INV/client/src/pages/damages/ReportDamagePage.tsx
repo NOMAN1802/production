@@ -7,6 +7,7 @@ import { useCreateDamageMutation } from '@/services/damagesApi';
 import { useGetProductsQuery } from '@/services/productsApi';
 import { useGetSuppliersQuery } from '@/services/suppliersApi';
 import { useGetExpensesQuery } from '@/services/expensesApi';
+import { useGetCustomersQuery } from '@/services/customersApi';
 import type { CreateDamageInput } from '@/services/damagesApi';
 
 type DamageItem = {
@@ -27,7 +28,8 @@ const ReportDamagePage = () => {
     const [createDamage, { isLoading }] = useCreateDamageMutation();
     
     const [productSearch, setProductSearch] = useState('');
-    const [selectedSupplier, setSelectedSupplier] = useState<string>('all'); // 'all' for all suppliers
+    const [selectedSupplier, setSelectedSupplier] = useState<string>('all');
+    const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
     const [selectedProductIds, setSelectedProductIds] = useState<Set<string>>(new Set());
     const [damageItems, setDamageItems] = useState<DamageItem[]>([]);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -40,6 +42,10 @@ const ReportDamagePage = () => {
 
     // Fetch suppliers
     const { data: suppliersData } = useGetSuppliersQuery({ limit: 100 });
+
+    // Fetch customers
+    const { data: customersData } = useGetCustomersQuery({ limit: 1000 });
+    const customers = useMemo(() => customersData?.customers ?? [], [customersData]);
 
     // Fetch expenses to get supplier for products
     const { data: expensesData } = useGetExpensesQuery({
@@ -202,6 +208,7 @@ const ReportDamagePage = () => {
             }, 0);
 
             const damageData: CreateDamageInput = {
+                ...(selectedCustomerId && { customerId: selectedCustomerId }),
                 items: damageItems.map(item => ({
                     product: item.productId,
                     productName: item.productName,
@@ -224,6 +231,7 @@ const ReportDamagePage = () => {
             setSelectedProductIds(new Set());
             setDamageItems([]);
             setProductSearch('');
+            setSelectedCustomerId('');
             
             toast.success('Damage report created successfully!', {
                 description: `Reported ${damageItems.length} product(s)`,
@@ -259,8 +267,10 @@ const ReportDamagePage = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Supplier Filter */}
+                {/* Supplier & Customer Filter */}
                 <div className="rounded-xl border border-slate-200/60 bg-white p-3 shadow-sm">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-2">Select Supplier</label>
                     <select
                         value={selectedSupplier}
@@ -274,6 +284,23 @@ const ReportDamagePage = () => {
                             </option>
                         ))}
                     </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-2">Select Customer</label>
+                            <select
+                                value={selectedCustomerId}
+                                onChange={(e) => setSelectedCustomerId(e.target.value)}
+                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
+                            >
+                                <option value="">-- No Customer --</option>
+                                {customers.map((customer) => (
+                                    <option key={customer._id} value={customer._id}>
+                                        {customer.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Product Search */}
@@ -374,7 +401,6 @@ const ReportDamagePage = () => {
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Qty</th>
                                         <th className="px-2 py-1.5 text-right text-[9px] font-semibold uppercase tracking-wider text-slate-700">Unit Cost</th>
                                         <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Type</th>
-                                        <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Reason</th>
                                         <th className="px-2 py-1.5 text-right text-[9px] font-semibold uppercase tracking-wider text-slate-700">Loss</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Action</th>
                                     </tr>
@@ -428,20 +454,6 @@ const ReportDamagePage = () => {
                                                 </td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <select
-                                                        value={item.supplierId || ''}
-                                                        onChange={(e) => handleItemUpdate(item.productId, item.orderItemIndex, 'supplierId', e.target.value)}
-                                                        className="w-full rounded border border-slate-200 bg-white px-1.5 py-1 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-                                                    >
-                                                        <option value="">-- Select Supplier --</option>
-                                                        {suppliers.map((supplier) => (
-                                                            <option key={supplier._id} value={supplier._id}>
-                                                                {supplier.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </td>
-                                                <td className="px-2 py-1.5 whitespace-nowrap">
-                                                    <select
                                                         value={item.damageType}
                                                         onChange={(e) => handleItemUpdate(item.productId, item.orderItemIndex, 'damageType', e.target.value)}
                                                         className={`w-full rounded border ${
@@ -454,15 +466,6 @@ const ReportDamagePage = () => {
                                                         <option value="defective">Defective</option>
                                                         <option value="other">Other</option>
                                                     </select>
-                                                </td>
-                                                <td className="px-2 py-1.5 whitespace-nowrap">
-                                                    <input
-                                                        type="text"
-                                                        value={item.reason || 'Product damaged or expired'}
-                                                        onChange={(e) => handleItemUpdate(item.productId, item.orderItemIndex, 'reason', e.target.value)}
-                                                        placeholder="Product damaged or expired"
-                                                        className="w-full rounded border border-slate-200 bg-white px-1.5 py-1 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
-                                                    />
                                                 </td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap text-right">
                                                     <div className="text-xs font-semibold text-red-600">
@@ -484,7 +487,7 @@ const ReportDamagePage = () => {
                                 </tbody>
                                 <tfoot className="bg-red-50">
                                     <tr>
-                                        <td colSpan={6} className="px-2 py-1.5 text-right text-[9px] font-semibold text-slate-900">
+                                        <td colSpan={5} className="px-2 py-1.5 text-right text-[9px] font-semibold text-slate-900">
                                             Total Loss:
                                         </td>
                                         <td className="px-2 py-1.5 text-right">

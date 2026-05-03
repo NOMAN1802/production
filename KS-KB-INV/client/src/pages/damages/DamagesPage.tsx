@@ -746,7 +746,7 @@ const DamagesPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-slate-600">
-                                {paginatedDamages.map((damage) => {
+                                {paginatedDamages.map((damage, idx) => {
                                     const items = damage.items && Array.isArray(damage.items) && damage.items.length > 0
                                         ? damage.items
                                         : [];
@@ -759,6 +759,7 @@ const DamagesPage = () => {
 
                                     return (
                                         <tr key={damage._id} className="transition hover:bg-slate-50/70">
+                                            <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                             <td className="py-4 pr-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-lg">

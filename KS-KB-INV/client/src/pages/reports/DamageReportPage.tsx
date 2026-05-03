@@ -28,6 +28,8 @@ const DamageReportPage = () => {
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const limit = 20;
     const printRef = useRef<HTMLDivElement>(null);
 
     const getDateRangeParams = useMemo(() => {
@@ -132,6 +134,8 @@ const DamageReportPage = () => {
         });
     }, [data, searchQuery]);
 
+    const paginatedDamages = useMemo(() => filteredDamages.slice((page - 1) * limit, page * limit), [filteredDamages, page]);
+
     const handlePrint = useReactToPrint({
         contentRef: printRef,
         documentTitle: `Damage_Report_${dayjs().format('YYYY-MM-DD')}`,
@@ -172,6 +176,7 @@ const DamageReportPage = () => {
                     setDateRange(range);
                     setCustomStartDate('');
                     setCustomEndDate('');
+                    setPage(1);
                 }}
                 onCustomStartDateChange={setCustomStartDate}
                 onCustomEndDateChange={setCustomEndDate}
@@ -248,7 +253,7 @@ const DamageReportPage = () => {
                             <input
                                 type="text"
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                                 placeholder="Search by product, reason, or supplier..."
                                 className="w-64 rounded-lg border border-slate-200 bg-white px-3 py-1.5 pl-9 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
                             />
@@ -303,13 +308,14 @@ const DamageReportPage = () => {
                         <tbody className="divide-y divide-slate-200 bg-white">
                             {filteredDamages.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="px-2 py-4 text-center text-xs text-slate-500">
+                                    <td colSpan={8} className="px-2 py-4 text-center text-xs text-slate-500">
                                         {searchQuery ? 'No damages found matching your search' : 'No damages found'}
                                     </td>
                                 </tr>
                             ) : (
-                                filteredDamages.map((damage) => (
+                                paginatedDamages.map((damage, idx) => (
                                     <tr key={damage._id} className="hover:bg-slate-50">
+                                        <td className="px-2 py-1.5 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                         <td className="px-2 py-1.5 whitespace-nowrap text-xs text-slate-600">
                                             {dayjs(damage.createdAt).format('DD MMM YYYY')}
                                         </td>
@@ -337,6 +343,19 @@ const DamageReportPage = () => {
                         </tbody>
                     </table>
                 </div>
+                {filteredDamages.length > limit && (
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-4 print:hidden">
+                        <p className="text-xs text-slate-500">
+                            Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span>–<span className="font-semibold text-slate-900">{Math.min(page * limit, filteredDamages.length)}</span> of{' '}
+                            <span className="font-semibold text-slate-900">{filteredDamages.length}</span>
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Prev</button>
+                            <span className="text-xs font-semibold text-slate-700">Page {page} of {Math.ceil(filteredDamages.length / limit)}</span>
+                            <button onClick={() => setPage(p => Math.min(Math.ceil(filteredDamages.length / limit), p + 1))} disabled={page >= Math.ceil(filteredDamages.length / limit)} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Next</button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

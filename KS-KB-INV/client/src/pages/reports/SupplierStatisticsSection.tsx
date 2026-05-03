@@ -238,8 +238,9 @@ const SupplierStatisticsSection = ({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {supplierStats.map((stat) => (
+                                {supplierStats.map((stat, idx) => (
                                     <tr key={stat.supplierId} className="hover:bg-slate-50/50">
+                                        <td className="py-3 text-slate-400 text-xs">{idx + 1}</td>
                                         <td className="py-3 font-medium text-slate-900">
                                             {stat.supplierName}
                                         </td>

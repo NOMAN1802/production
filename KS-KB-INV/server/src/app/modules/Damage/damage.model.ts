@@ -26,6 +26,7 @@ const DamageSchema = new Schema<TDamage>(
     damageNumber: { type: String, unique: true },
     orderId: { type: Schema.Types.ObjectId, ref: "Order", required: false },
     orderNumber: { type: String },
+    customerId: { type: Schema.Types.ObjectId, ref: "Customer", required: false },
     items: {
       type: [DamageItemSchema],
       required: true,

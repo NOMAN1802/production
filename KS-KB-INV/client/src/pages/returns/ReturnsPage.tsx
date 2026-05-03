@@ -885,6 +885,7 @@ const ReturnsPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pr-4">S/N</th>
                                 <th className="py-3 pr-4">Order Number</th>
                                 <th className="py-3 pr-4">Customer</th>
                                 <th className="py-3 pr-4">Return Numbers</th>
@@ -898,6 +899,7 @@ const ReturnsPage = () => {
                         <tbody className="divide-y divide-slate-100 text-slate-600">
                             {paginatedGroupedReturns.map((group, index) => (
                                 <tr key={group.orderNumber || `no-order-${index}`} className="transition hover:bg-slate-50/70">
+                                    <td className="py-4 pr-4 text-slate-400 text-xs">{index + 1}</td>
                                     <td className="py-4 pr-4">
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">

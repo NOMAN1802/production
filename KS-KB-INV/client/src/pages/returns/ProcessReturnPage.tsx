@@ -279,6 +279,7 @@ const ProcessReturnPage = () => {
                             <table className="w-full divide-y divide-slate-200 text-xs">
                                 <thead className="bg-slate-50">
                                     <tr>
+                                        <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                         <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Ordered</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Available</th>
@@ -296,6 +297,7 @@ const ProcessReturnPage = () => {
 
                                         return (
                                             <tr key={idx} className={isInReturn ? 'bg-brand/5' : 'hover:bg-slate-50'}>
+                                                <td className="px-2 py-1.5 text-slate-400 text-xs">{idx + 1}</td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <div className="text-xs font-medium text-slate-900">{item.productName}</div>
                                                 </td>

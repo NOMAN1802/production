@@ -35,6 +35,12 @@ export type Damage = {
     damageNumber: string;
     orderId?: string;
     orderNumber?: string;
+    customerId?: string | {
+        _id: string;
+        name: string;
+        phone?: string;
+        address?: string;
+    };
     items: DamageItem[];
     notes?: string;
     subtotal: number;
@@ -58,6 +64,7 @@ export type CreateDamageItemInput = {
 export type CreateDamageInput = {
     orderId?: string;
     orderNumber?: string;
+    customerId?: string;
     items: CreateDamageItemInput[];
     notes?: string;
     subtotal: number;

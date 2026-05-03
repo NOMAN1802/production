@@ -225,6 +225,7 @@ const PendingProductsPage = () => {
                         <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                             <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                                 <tr>
+                                    <th className="py-3 pr-4">S/N</th>
                                     <th className="py-3 pr-4">Product Name</th>
                                     <th className="py-3 pr-4">Code</th>
                                     <th className="py-3 pr-4">Quantity</th>
@@ -238,13 +239,14 @@ const PendingProductsPage = () => {
                             <tbody className="divide-y divide-slate-100 text-slate-600">
                                 {items.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="py-10 text-center text-sm text-slate-500">
+                                        <td colSpan={9} className="py-10 text-center text-sm text-slate-500">
                                             No pending products found.
                                         </td>
                                     </tr>
                                 ) : (
-                                    items.map((item) => (
+                                    items.map((item, idx) => (
                                         <tr key={item._id} className="hover:bg-slate-50/70 transition">
+                                            <td className="py-3 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                             <td className="py-3 pr-4 font-semibold text-slate-900">{item.productName}</td>
                                             <td className="py-3 pr-4 text-slate-600">{item.code || '-'}</td>
                                             <td className="py-3 pr-4">

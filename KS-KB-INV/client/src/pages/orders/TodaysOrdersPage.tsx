@@ -32,6 +32,8 @@ interface DailySummary {
 
 const TodaysOrdersPage = () => {
     const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
+    const [page, setPage] = useState(1);
+    const limit = 20;
     const reportRef = useRef<HTMLDivElement>(null);
 
     // Fetch today's data
@@ -317,6 +319,8 @@ const TodaysOrdersPage = () => {
         return sales;
     }, [orders, returns]);
 
+    const paginatedOrderSales = useMemo(() => orderWiseSales.slice((page - 1) * limit, page * limit), [orderWiseSales, page]);
+
     // Calculate daily summary from orderWiseSales
     const dailySummary: DailySummary = useMemo(() => {
         // Calculate from all orders for today
@@ -583,7 +587,7 @@ const TodaysOrdersPage = () => {
                     <input
                         type="date"
                         value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
+                        onChange={(e) => { setSelectedDate(e.target.value); setPage(1); }}
                         className="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
                     />
                     <button
@@ -691,14 +695,16 @@ const TodaysOrdersPage = () => {
                                     <table className="min-w-full divide-y divide-slate-100 text-sm">
                                         <thead className="bg-slate-50">
                                             <tr>
+                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase">S/N</th>
                                                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Order #</th>
                                                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase">Items</th>
                                                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase">Total Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
-                                            {orders.map(order => (
+                                            {orders.map((order, idx) => (
                                                 <tr key={order._id} className="hover:bg-slate-50">
+                                                    <td className="px-4 py-3 text-slate-400 text-xs">{idx + 1}</td>
                                                     <td className="px-4 py-3 font-medium">{order.orderNumber}</td>
                                                     <td className="px-4 py-3">
                                                         {order.items?.map((item: any, idx: number) => (
@@ -728,7 +734,7 @@ const TodaysOrdersPage = () => {
                     </div>
                 ) : (
                     <div className="space-y-4 print:space-y-2">
-                        {orderWiseSales.map((order) => (
+                        {paginatedOrderSales.map((order) => (
                             <div key={order.orderId} className="border-b border-slate-200 last:border-0 pb-3 last:pb-0 print:pb-1 print:page-break-inside-avoid">
                                 {/* Order Header */}
                                 <div className="mb-2 print:mb-1 flex items-center justify-between">
@@ -759,6 +765,9 @@ const TodaysOrdersPage = () => {
                                         <thead className="bg-slate-50 print:bg-white">
                                             <tr>
                                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700 print:text-black border-b border-slate-200">
+                                                    S/N
+                                                </th>
+                                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700 print:text-black border-b border-slate-200">
                                                     Product Name
                                                 </th>
                                                 <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700 print:text-black border-b border-slate-200">
@@ -785,6 +794,7 @@ const TodaysOrdersPage = () => {
 
                                                     return (
                                                         <tr key={`${item.productName}-${index}-${item.type}`} className={`${rowClass} print:hover:bg-transparent`}>
+                                                            <td className="px-2 py-1.5 text-slate-400 text-xs print:text-[9px]">{index + 1}</td>
                                                             <td className="px-2 py-1.5 print:text-black font-medium text-xs print:text-[9px]">
                                                                 <div className="flex items-center gap-1">
                                                                     {item.productName || 'N/A'}
@@ -813,7 +823,7 @@ const TodaysOrdersPage = () => {
                                                 })
                                             ) : (
                                                 <tr>
-                                                    <td colSpan={5} className="px-2 py-2 text-center text-slate-500 text-xs print:text-[9px]">
+                                                    <td colSpan={6} className="px-2 py-2 text-center text-slate-500 text-xs print:text-[9px]">
                                                         No items found in this order
                                                     </td>
                                                 </tr>
@@ -821,6 +831,7 @@ const TodaysOrdersPage = () => {
                                         </tbody>
                                         <tfoot className="bg-slate-100 print:bg-white border-t-2 border-slate-300">
                                             <tr className="font-bold text-slate-900 print:text-black text-xs print:text-[9px]">
+                                                <td className="px-2 py-1.5"></td>
                                                 <td className="px-2 py-1.5">
                                                     {order.returnQuantity > 0 ? 'Order & Return Summary' : 'Order Summary'}
                                                 </td>
@@ -887,6 +898,19 @@ const TodaysOrdersPage = () => {
                                 </div>
                             </div>
                         </div>
+                        {orderWiseSales.length > limit && (
+                            <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 print:hidden">
+                                <p className="text-xs text-slate-500">
+                                    Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span>–<span className="font-semibold text-slate-900">{Math.min(page * limit, orderWiseSales.length)}</span> of{' '}
+                                    <span className="font-semibold text-slate-900">{orderWiseSales.length}</span>
+                                </p>
+                                <div className="flex items-center gap-2">
+                                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Prev</button>
+                                    <span className="text-xs font-semibold text-slate-700">Page {page} of {Math.ceil(orderWiseSales.length / limit)}</span>
+                                    <button onClick={() => setPage(p => Math.min(Math.ceil(orderWiseSales.length / limit), p + 1))} disabled={page >= Math.ceil(orderWiseSales.length / limit)} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Next</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

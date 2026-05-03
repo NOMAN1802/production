@@ -168,6 +168,7 @@ const AddPendingProductsPage = () => {
                         <table className="w-full divide-y divide-slate-200 text-xs">
                             <thead className="bg-slate-50">
                                 <tr>
+                                    <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Code / SKU</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Category</th>
@@ -178,13 +179,14 @@ const AddPendingProductsPage = () => {
                             <tbody className="divide-y divide-slate-200 bg-white">
                                 {products.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="px-2 py-4 text-center text-xs text-slate-500">No products found</td>
+                                        <td colSpan={6} className="px-2 py-4 text-center text-xs text-slate-500">No products found</td>
                                     </tr>
                                 ) : (
-                                    products.map((product) => {
+                                    products.map((product, idx) => {
                                         const isSelected = selectedProductNames.has(product._id);
                                         return (
                                             <tr key={product._id} className={isSelected ? 'bg-brand/5' : 'hover:bg-slate-50'}>
+                                                <td className="px-2 py-1.5 text-slate-400 text-xs">{idx + 1}</td>
                                                 <td className="px-2 py-1.5">
                                                     <div className="font-medium text-slate-900">{product.name}</div>
                                                     <div className="text-[10px] text-slate-500">Unit: {product.unit}</div>
@@ -224,6 +226,7 @@ const AddPendingProductsPage = () => {
                             <table className="w-full divide-y divide-slate-200 text-xs">
                                 <thead className="bg-slate-50">
                                     <tr>
+                                        <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                         <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product Name</th>
                                         <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Code</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Quantity</th>
@@ -235,6 +238,7 @@ const AddPendingProductsPage = () => {
                                 <tbody className="divide-y divide-slate-200 bg-white">
                                     {pendingItems.map((item, index) => (
                                         <tr key={index} className="hover:bg-slate-50">
+                                            <td className="px-2 py-1.5 text-slate-400 text-xs">{index + 1}</td>
                                             <td className="px-2 py-1.5 font-medium text-slate-900 whitespace-nowrap">{item.productName}</td>
                                             <td className="px-2 py-1.5 whitespace-nowrap">
                                                 <input

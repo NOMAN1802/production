@@ -76,7 +76,7 @@ const CustomersPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
-                                <th className="py-3 pr-4">#</th>
+                                <th className="py-3 pr-4">S/N</th>
                                 <th className="py-3 pr-4">Name</th>
                                 <th className="py-3 pr-4">Phone</th>
                                 <th className="py-3 pr-4">Address</th>

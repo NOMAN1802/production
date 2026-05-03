@@ -418,6 +418,7 @@ const PurchaseProductPage = () => {
                         <table className="w-full divide-y divide-slate-200 text-xs">
                             <thead className="bg-slate-50">
                                 <tr>
+                                    <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">SKU</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Supplier</th>
@@ -430,12 +431,12 @@ const PurchaseProductPage = () => {
                             <tbody className="divide-y divide-slate-200 bg-white">
                                 {filteredProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-2 py-3 text-center text-xs text-slate-500">
+                                        <td colSpan={8} className="px-2 py-3 text-center text-xs text-slate-500">
                                             {selectedSupplierId ? 'No products found for the selected supplier' : 'No products found'}
                                         </td>
                                     </tr>
                                 ) : (
-                                    filteredProducts.map((product) => {
+                                    filteredProducts.map((product, idx) => {
                                         const isSelected = selectedProductIds.has(product._id);
 
                                         // Get supplier: prioritize purchase item supplier, then selected supplier, then historical supplier
@@ -445,6 +446,7 @@ const PurchaseProductPage = () => {
 
                                         return (
                                             <tr key={product._id} className={isSelected ? 'bg-brand/5' : 'hover:bg-slate-50'}>
+                                                <td className="px-2 py-1.5 text-slate-400 text-xs">{idx + 1}</td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <div className="text-xs font-medium text-slate-900">{product.name}</div>
                                                     <div className="text-[10px] text-slate-500">Unit: {product.unit}</div>
@@ -498,6 +500,7 @@ const PurchaseProductPage = () => {
                             <table className="w-full divide-y divide-slate-200 text-xs">
                                 <thead className="bg-slate-50">
                                     <tr>
+                                        <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                         <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Stock</th>
                                         <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Qty</th>
@@ -511,7 +514,7 @@ const PurchaseProductPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-200 bg-white">
-                                    {purchaseItems.map((item) => {
+                                    {purchaseItems.map((item, idx) => {
                                         const product = products.find(p => p._id === item.productId);
                                         if (!product) return null;
                                         const itemTotal = (Number(item.quantity) || 0) * (Number(item.purchasePrice) || 0);
@@ -520,6 +523,7 @@ const PurchaseProductPage = () => {
 
                                         return (
                                             <tr key={item.productId} className="hover:bg-slate-50">
+                                                <td className="px-2 py-1.5 text-slate-400 text-xs">{idx + 1}</td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <div className="text-xs font-medium text-slate-900">{product.name}</div>
                                                     {product.sku && (

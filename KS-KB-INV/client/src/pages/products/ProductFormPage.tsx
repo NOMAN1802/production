@@ -18,7 +18,6 @@ type ProductFormData = {
     unit: string;
     supplier: string;
     description: string;
-    sellingPrice: string;
 };
 
 const ProductFormPage = () => {
@@ -51,8 +50,11 @@ const ProductFormPage = () => {
         unit: '',
         supplier: '',
         description: '',
-        sellingPrice: '',
     });
+
+    const [purchasePrice, setPurchasePrice] = useState('');
+    const [markupPercent, setMarkupPercent] = useState('');
+    const [sellingPrice, setSellingPrice] = useState('');
 
     const [errors, setErrors] = useState<Partial<Record<keyof ProductFormData, string>>>({});
     const prevProductIdRef = useRef<string | undefined>(undefined);
@@ -64,7 +66,6 @@ const ProductFormPage = () => {
         // Only update if this is a new product (product ID changed) or first load
         if (prevProductIdRef.current !== product._id) {
             prevProductIdRef.current = product._id;
-            // Use queueMicrotask to defer setState, avoiding synchronous setState warning
             queueMicrotask(() => {
                 setFormData({
                     name: product.name,
@@ -73,17 +74,47 @@ const ProductFormPage = () => {
                     unit: product.unit,
                     supplier: product.supplierId || '',
                     description: product.description || '',
-                    sellingPrice: product.sellingPrice != null ? String(product.sellingPrice) : '',
                 });
+                const pp = product.purchasePrice ?? 0;
+                const sp = product.sellingPrice ?? 0;
+                setPurchasePrice(pp ? String(pp) : '');
+                setSellingPrice(sp ? String(sp) : '');
+                setMarkupPercent(pp > 0 ? ((sp / pp - 1) * 100).toFixed(2) : '');
             });
         }
     }, [isEditMode, product]);
 
     const handleChange = (field: keyof ProductFormData, value: string) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        // Clear error when user starts typing
         if (errors[field]) {
             setErrors((prev) => ({ ...prev, [field]: undefined }));
+        }
+    };
+
+    const handlePurchasePriceChange = (val: string) => {
+        setPurchasePrice(val);
+        const pp = parseFloat(val);
+        const mu = parseFloat(markupPercent);
+        if (!isNaN(pp) && !isNaN(mu)) {
+            setSellingPrice((pp * (1 + mu / 100)).toFixed(2));
+        }
+    };
+
+    const handleMarkupChange = (val: string) => {
+        setMarkupPercent(val);
+        const pp = parseFloat(purchasePrice);
+        const mu = parseFloat(val);
+        if (!isNaN(pp) && !isNaN(mu)) {
+            setSellingPrice((pp * (1 + mu / 100)).toFixed(2));
+        }
+    };
+
+    const handleSellingPriceChange = (val: string) => {
+        setSellingPrice(val);
+        const pp = parseFloat(purchasePrice);
+        const sp = parseFloat(val);
+        if (!isNaN(pp) && pp > 0 && !isNaN(sp)) {
+            setMarkupPercent(((sp / pp - 1) * 100).toFixed(2));
         }
     };
 
@@ -114,7 +145,8 @@ const ProductFormPage = () => {
                     categoryName: formData.category || undefined,
                     unit: formData.unit || undefined,
                     supplierId: formData.supplier || undefined,
-                    sellingPrice: formData.sellingPrice !== '' ? parseFloat(formData.sellingPrice) : undefined,
+                    purchasePrice: purchasePrice !== '' ? parseFloat(purchasePrice) : undefined,
+                    sellingPrice: sellingPrice !== '' ? parseFloat(sellingPrice) : undefined,
                     description: formData.description || undefined,
                 };
                 await updateProduct({ id, data: updatePayload }).unwrap();
@@ -275,21 +307,53 @@ const ProductFormPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Selling Price */}
-                                <div>
-                                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                        Selling Price
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={formData.sellingPrice}
-                                        onChange={(e) => handleChange('sellingPrice', e.target.value)}
-                                        min="0"
-                                        step="0.01"
-                                        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
-                                        placeholder="0.00"
-                                    />
-                                </div>
+                                {/* Pricing — edit mode only */}
+                                {isEditMode && (
+                                    <div className="grid gap-4 sm:grid-cols-3">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Purchase Price
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={purchasePrice}
+                                                onChange={(e) => handlePurchasePriceChange(e.target.value)}
+                                                min="0"
+                                                step="0.01"
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Markup %
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={markupPercent}
+                                                onChange={(e) => handleMarkupChange(e.target.value)}
+                                                min="0"
+                                                step="0.01"
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-green-700 placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                                Selling Price
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={sellingPrice}
+                                                onChange={(e) => handleSellingPriceChange(e.target.value)}
+                                                min="0"
+                                                step="0.01"
+                                                className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-brand placeholder:text-slate-400 focus:border-brand focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/20 transition-all"
+                                                placeholder="0.00"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Description */}
                                 <div>

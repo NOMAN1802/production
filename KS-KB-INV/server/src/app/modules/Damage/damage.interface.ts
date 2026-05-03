@@ -20,6 +20,7 @@ export type TDamage = {
   damageNumber?: string;
   orderId?: Types.ObjectId;
   orderNumber?: string;
+  customerId?: Types.ObjectId;
   items: TDamageItem[];
   notes?: string;
   subtotal: number;

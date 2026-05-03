@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ShoppingCartIcon,
     MagnifyingGlassIcon,
@@ -14,21 +15,20 @@ import dayjs from 'dayjs';
 import { useReactToPrint } from 'react-to-print';
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
-import { useGetPurchasesQuery, type Purchase } from '@/services/purchasesApi';
+import { useGetPurchasesQuery } from '@/services/purchasesApi';
 import { useGetSuppliersQuery } from '@/services/suppliersApi';
 import PurchaseDetailsModal from './PurchaseDetailsModal';
-import EditPurchaseModal from './EditPurchaseModal';
 import DateRangeSelector from '@/pages/reports/DateRangeSelector';
 
 type DateRangeType = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
 
 const PurchaseListPage = () => {
+    const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
     const [selectedSupplier, setSelectedSupplier] = useState<string | null>(null);
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [viewingPurchaseId, setViewingPurchaseId] = useState<string | null>(null);
-    const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
     const [dateRange, setDateRange] = useState<DateRangeType>('all');
     const [customStartDate, setCustomStartDate] = useState('');
     const [customEndDate, setCustomEndDate] = useState('');
@@ -186,12 +186,8 @@ const PurchaseListPage = () => {
         setViewingPurchaseId(null);
     };
 
-    const handleEditPurchase = (purchase: Purchase) => {
-        setEditingPurchase(purchase);
-    };
-
-    const handleCloseEditModal = () => {
-        setEditingPurchase(null);
+    const handleEditPurchase = (purchaseId: string) => {
+        navigate(`/purchases/${purchaseId}/edit`);
     };
 
     const handlePrint = useReactToPrint({
@@ -685,6 +681,7 @@ const PurchaseListPage = () => {
                         <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                             <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                                 <tr>
+                                    <th className="py-3 pr-4">S/N</th>
                                     <th className="py-3 pr-4">Date</th>
                                     <th className="py-3 pr-4">Title</th>
                                     <th className="py-3 pr-4">Supplier</th>
@@ -694,12 +691,13 @@ const PurchaseListPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-slate-600">
-                                {paginatedPurchases.map((purchase) => {
+                                {paginatedPurchases.map((purchase, idx) => {
                                     // Purchase supplier is always an object according to the type
                                     const supplier = purchase.supplier;
 
                                     return (
                                         <tr key={purchase._id} className="transition hover:bg-slate-50/70">
+                                            <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                             <td className="py-4 pr-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
@@ -738,7 +736,7 @@ const PurchaseListPage = () => {
                                                         <PrinterIcon className="h-4 w-4" />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleEditPurchase(purchase)}
+                                                        onClick={() => handleEditPurchase(purchase._id)}
                                                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-all hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600"
                                                         title="Edit Purchase"
                                                     >
@@ -809,11 +807,6 @@ const PurchaseListPage = () => {
                 />
             </div>
 
-            {/* Edit Purchase Modal */}
-            <EditPurchaseModal
-                purchase={editingPurchase}
-                onClose={handleCloseEditModal}
-            />
         </>
     );
 };

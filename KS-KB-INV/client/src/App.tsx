@@ -6,6 +6,7 @@ import ProductsPage from '@/pages/products/ProductsPage';
 import ProductFormPage from '@/pages/products/ProductFormPage';
 import PurchaseProductPage from '@/pages/products/PurchaseProductPage';
 import PurchaseListPage from '@/pages/purchases/PurchaseListPage';
+import EditPurchasePage from '@/pages/purchases/EditPurchasePage';
 import PendingProductsPage from '@/pages/pending-products/PendingProductsPage';
 import AddPendingProductsPage from '@/pages/pending-products/AddPendingProductsPage';
 import CategoriesPage from '@/pages/categories/CategoriesPage';
@@ -86,6 +87,7 @@ function App() {
           <Route path="products/pending" element={<PendingProductsPage />} />
           <Route path="products/pending/new" element={<AddPendingProductsPage />} />
           <Route path="purchases" element={<PurchaseListPage />} />
+          <Route path="purchases/:id/edit" element={<EditPurchasePage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="units" element={<UnitsPage />} />
           <Route path="suppliers" element={<SuppliersPage />} />

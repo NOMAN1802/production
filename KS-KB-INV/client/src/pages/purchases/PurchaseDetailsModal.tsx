@@ -183,6 +183,7 @@ const PurchaseDetailsModal = ({ purchaseId, onClose }: PurchaseDetailsModalProps
                             <tbody>
                                 {purchase.items.map((item, index) => (
                                     <tr key={index} className="border-b border-slate-200">
+                                        <td className="py-1.5 px-1 text-[10px] text-slate-800">{index + 1}</td>
                                         <td className="py-1.5 px-1 text-[10px] text-slate-800">{item.productName}</td>
                                         <td className="py-1.5 px-1 text-[10px] text-slate-700">{purchase.supplier.name}</td>
                                         <td className="py-1.5 px-1 text-center text-[10px] text-slate-700">{item.quantity}</td>

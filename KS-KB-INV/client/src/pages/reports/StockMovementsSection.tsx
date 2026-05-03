@@ -171,6 +171,7 @@ const StockMovementsSection = ({
                         <table className="min-w-full text-sm">
                             <thead className="text-xs uppercase text-slate-500 border-b border-slate-100">
                                 <tr>
+                                    <th className="py-3 pr-4 text-left">S/N</th>
                                     <th className="py-3 text-left">Type</th>
                                     <th className="py-3 text-left">Product</th>
                                     <th className="py-3 text-right">Quantity</th>
@@ -181,6 +182,7 @@ const StockMovementsSection = ({
                             <tbody className="divide-y divide-slate-50">
                                 {stockMovements.map((movement, index) => (
                                     <tr key={index} className="hover:bg-slate-50/50">
+                                        <td className="py-3 pr-4 text-slate-400 text-xs">{index + 1}</td>
                                         <td className="py-3">
                                             <span
                                                 className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${movement.type === 'return'
@@ -221,14 +223,16 @@ const StockMovementsSection = ({
                             <table className="min-w-full text-sm">
                                 <thead className="text-xs uppercase text-slate-500 border-b border-slate-100">
                                     <tr>
+                                        <th className="py-2 pr-4 text-left">S/N</th>
                                         <th className="py-2 text-left">Product</th>
                                         <th className="py-2 text-right">Qty</th>
                                         <th className="py-2 text-left">Order</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {returnData.returns.slice(0, 5).map((r) => (
+                                    {returnData.returns.slice(0, 5).map((r, idx) => (
                                         <tr key={r._id} className="hover:bg-slate-50/50">
+                                            <td className="py-3 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                             <td className="py-3 font-medium text-slate-900">{r.product?.name || 'N/A'}</td>
                                             <td className="py-3 text-right text-emerald-600 font-semibold">+{r.quantity}</td>
                                             <td className="py-3 text-slate-500">{r.order?.orderNumber || 'N/A'}</td>
@@ -253,14 +257,16 @@ const StockMovementsSection = ({
                             <table className="min-w-full text-sm">
                                 <thead className="text-xs uppercase text-slate-500 border-b border-slate-100">
                                     <tr>
+                                        <th className="py-2 pr-4 text-left">S/N</th>
                                         <th className="py-2 text-left">Product</th>
                                         <th className="py-2 text-right">Qty</th>
                                         <th className="py-2 text-left">Reason</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {damageData.damages.slice(0, 5).map((d) => (
+                                    {damageData.damages.slice(0, 5).map((d, idx) => (
                                         <tr key={d._id} className="hover:bg-slate-50/50">
+                                            <td className="py-3 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                             <td className="py-3 font-medium text-slate-900">{d.product?.name || 'N/A'}</td>
                                             <td className="py-3 text-right text-red-600 font-semibold">-{d.quantity}</td>
                                             <td className="py-3 text-slate-500 max-w-[150px] truncate">{d.reason}</td>

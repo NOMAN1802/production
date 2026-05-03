@@ -286,8 +286,9 @@ const DashboardPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
-                            {(data.recentOrders || []).slice(0, 8).map((order) => (
+                            {(data.recentOrders || []).slice(0, 8).map((order, idx) => (
                                 <tr key={order._id} className="transition hover:bg-slate-50/80">
+                                    <td className="py-4 pr-4 text-slate-400 text-xs">{idx + 1}</td>
                                     <td className="py-4 pr-4 font-semibold text-slate-900">{order.orderNumber}</td>
                                     <td className="py-4 pr-4">{order.customer?.name ?? 'Walk-in Customer'}</td>
                                     <td className="py-4 pr-4 font-semibold text-slate-900">৳{(order.totalAmount ?? 0).toLocaleString()}</td>

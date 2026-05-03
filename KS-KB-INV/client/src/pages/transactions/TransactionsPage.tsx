@@ -10,12 +10,13 @@ import {
     ArrowPathIcon,
     PlusIcon,
     XMarkIcon,
-    PrinterIcon
+    PrinterIcon,
+    PencilSquareIcon,
 } from '@heroicons/react/24/outline';
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
-import { useGetExpensesQuery, useCreateExpenseMutation } from '@/services/expensesApi';
-import type { ExpenseCategory } from '@/services/expensesApi';
+import { useGetExpensesQuery, useCreateExpenseMutation, useUpdateExpenseMutation } from '@/services/expensesApi';
+import type { Expense, ExpenseCategory } from '@/services/expensesApi';
 import DateRangeSelector from '@/pages/reports/DateRangeSelector';
 
 type DateRangeType = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom';
@@ -24,6 +25,7 @@ const TransactionsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [categoryFilter, setCategoryFilter] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingTxn, setEditingTxn] = useState<Expense | null>(null);
     const [page, setPage] = useState(1);
     const [dateRange, setDateRange] = useState<DateRangeType>('all');
     const [customStartDate, setCustomStartDate] = useState('');
@@ -83,6 +85,7 @@ const TransactionsPage = () => {
     });
 
     const [createExpense, { isLoading: isCreating }] = useCreateExpenseMutation();
+    const [updateExpense, { isLoading: isUpdating }] = useUpdateExpenseMutation();
 
     const allTransactions = useMemo(() => data?.result ?? [], [data?.result]);
 
@@ -266,6 +269,27 @@ const TransactionsPage = () => {
         document.body.removeChild(link);
 
         URL.revokeObjectURL(url);
+    };
+
+    const handleUpdateExpense = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!editingTxn) return;
+        const formData = new FormData(e.currentTarget);
+        try {
+            await updateExpense({
+                id: editingTxn._id,
+                data: {
+                    title: formData.get('title') as string,
+                    category: formData.get('category') as ExpenseCategory,
+                    amount: Number(formData.get('amount')),
+                    date: new Date(formData.get('date') as string).toISOString(),
+                    description: formData.get('description') as string,
+                },
+            }).unwrap();
+            setEditingTxn(null);
+        } catch (error) {
+            console.error('Failed to update transaction:', error);
+        }
     };
 
     const handleCreateExpense = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -668,22 +692,25 @@ const TransactionsPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pl-4 pr-4">S/N</th>
                                 <th className="py-3 pl-4">Transaction</th>
                                 <th className="py-3">Category</th>
                                 <th className="py-3">Date</th>
-                                <th className="py-3 pr-4 text-right">Amount</th>
+                                <th className="py-3 text-right">Amount</th>
+                                <th className="py-3 pr-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
                             {transactions.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} className="py-8 text-center text-slate-500">
+                                    <td colSpan={5} className="py-8 text-center text-slate-500">
                                         No transactions found.
                                     </td>
                                 </tr>
                             ) : (
-                                transactions.map((txn) => (
+                                transactions.map((txn, idx) => (
                                     <tr key={txn._id} className="transition hover:bg-slate-50/60">
+                                        <td className="py-4 pl-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                         <td className="py-4 pl-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="rounded-full bg-slate-50 p-2">
@@ -701,8 +728,19 @@ const TransactionsPage = () => {
                                         <td className="py-4">
                                             {dayjs(txn.date).format('DD MMM YYYY')}
                                         </td>
-                                        <td className="py-4 pr-4 text-right font-bold text-slate-900">
+                                        <td className="py-4 text-right font-bold text-slate-900">
                                             ৳{txn.amount.toLocaleString()}
+                                        </td>
+                                        <td className="py-4 pr-4 text-center">
+                                            {txn.category !== 'product_purchase' && (
+                                                <button
+                                                    onClick={() => setEditingTxn(txn)}
+                                                    className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600 transition-all"
+                                                    title="Edit Transaction"
+                                                >
+                                                    <PencilSquareIcon className="h-4 w-4" />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -776,6 +814,103 @@ const TransactionsPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Edit Transaction Modal */}
+            {editingTxn && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-slate-900">Edit Transaction</h2>
+                            <button
+                                onClick={() => setEditingTxn(null)}
+                                className="rounded-full p-2 text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition"
+                            >
+                                <XMarkIcon className="h-6 w-6" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleUpdateExpense} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Title</label>
+                                <input
+                                    name="title"
+                                    required
+                                    defaultValue={editingTxn.title}
+                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                    placeholder="e.g. Office Rent"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Category</label>
+                                    <select
+                                        name="category"
+                                        required
+                                        defaultValue={editingTxn.category}
+                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                    >
+                                        <option value="rent">Rent</option>
+                                        <option value="utilities">Utilities</option>
+                                        <option value="supplies">Supplies</option>
+                                        <option value="salaries">Salaries</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-1">Amount</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">৳</span>
+                                        <input
+                                            name="amount"
+                                            type="number"
+                                            required
+                                            min="0"
+                                            defaultValue={editingTxn.amount}
+                                            className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Date</label>
+                                <input
+                                    name="date"
+                                    type="date"
+                                    required
+                                    defaultValue={editingTxn.date ? editingTxn.date.split('T')[0] : ''}
+                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1">Description (Optional)</label>
+                                <textarea
+                                    name="description"
+                                    rows={3}
+                                    defaultValue={editingTxn.description || ''}
+                                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20 resize-none"
+                                    placeholder="Add notes..."
+                                />
+                            </div>
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setEditingTxn(null)}
+                                    className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isUpdating}
+                                    className="flex-1 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-lg shadow-brand/30 hover:shadow-xl hover:shadow-brand/40 transition disabled:opacity-50"
+                                >
+                                    {isUpdating ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Add Transaction Modal */}
             {isModalOpen && (

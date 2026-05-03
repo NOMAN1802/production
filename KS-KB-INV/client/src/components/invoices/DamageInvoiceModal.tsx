@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useEffect } from 'react';
 import { useGetDamageQuery } from '@/services/damagesApi';
+import { useGetCustomerQuery } from '@/services/customersApi';
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
 import dayjs from 'dayjs';
@@ -16,6 +17,11 @@ interface DamageInvoiceModalProps {
 const DamageInvoiceModal = ({ damageId, onClose }: DamageInvoiceModalProps) => {
     const { data: damageData, isLoading, isError } = useGetDamageQuery(damageId);
     const printRef = useRef<HTMLDivElement>(null);
+
+    const rawCustomerId = damageData?.customerId;
+    const customerIdStr = typeof rawCustomerId === 'string' ? rawCustomerId : typeof rawCustomerId === 'object' && rawCustomerId !== null ? rawCustomerId._id : undefined;
+    const { data: fetchedCustomer } = useGetCustomerQuery(customerIdStr!, { skip: !customerIdStr || typeof rawCustomerId === 'object' });
+    const customer = typeof rawCustomerId === 'object' && rawCustomerId !== null ? rawCustomerId : fetchedCustomer;
 
     const handlePrint = useReactToPrint({
         contentRef: printRef,
@@ -127,6 +133,17 @@ const DamageInvoiceModal = ({ damageId, onClose }: DamageInvoiceModalProps) => {
                                                 Order: {damageDetails.orderNumber}
                                             </p>
                                         )}
+                                        {customer && (
+                                            <>
+                                                <p className="text-xs font-semibold text-slate-900 mt-1">{customer.name}</p>
+                                                {customer.phone && (
+                                                    <p className="text-xs text-slate-600">{customer.phone}</p>
+                                                )}
+                                                {customer.address && (
+                                                    <p className="text-xs text-slate-600">{customer.address}</p>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -139,7 +156,6 @@ const DamageInvoiceModal = ({ damageId, onClose }: DamageInvoiceModalProps) => {
                                         <th className="text-left py-2 px-1.5 text-[10px] font-bold text-slate-900 uppercase">Supplier</th>
                                         <th className="text-center py-2 px-1.5 text-[10px] font-bold text-slate-900 uppercase">Quantity</th>
                                         <th className="text-right py-2 px-1.5 text-[10px] font-bold text-slate-900 uppercase">Unit Cost</th>
-                                        <th className="text-left py-2 px-1.5 text-[10px] font-bold text-slate-900 uppercase">Type</th>
                                         <th className="text-right py-2 px-1.5 text-[10px] font-bold text-slate-900 uppercase">Total</th>
                                     </tr>
                                 </thead>
@@ -151,13 +167,12 @@ const DamageInvoiceModal = ({ damageId, onClose }: DamageInvoiceModalProps) => {
                                                 <td className="py-2 px-1.5 text-slate-700">{item.supplierName || item.supplier?.name || 'N/A'}</td>
                                                 <td className="py-2 px-1.5 text-center text-slate-700">{item.quantity}</td>
                                                 <td className="py-2 px-1.5 text-right text-slate-700">৳{(item.unitCost || 0).toLocaleString()}</td>
-                                                <td className="py-2 px-1.5 text-slate-700 capitalize">{item.damageType}</td>
                                                 <td className="py-2 px-1.5 text-right font-semibold text-slate-900">৳{(item.totalLoss || 0).toLocaleString()}</td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={6} className="py-2 px-1.5 text-xs text-slate-500 text-center">No items found</td>
+                                            <td colSpan={5} className="py-2 px-1.5 text-xs text-slate-500 text-center">No items found</td>
                                         </tr>
                                     )}
                                 </tbody>

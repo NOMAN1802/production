@@ -122,6 +122,11 @@ const createDamage = async (payload: TDamage, userId: string) => {
       payload.subtotal = payload.items.reduce((sum, item) => sum + item.totalLoss, 0);
       payload.totalLoss = payload.subtotal;
 
+      // Convert customerId string to ObjectId if provided
+      if (payload.customerId && typeof payload.customerId === 'string') {
+        payload.customerId = new mongoose.Types.ObjectId(payload.customerId);
+      }
+
       // Create damage entry
       payload.createdBy = new mongoose.Types.ObjectId(userId);
       const result = await Damage.create([payload], { session });
@@ -265,6 +270,7 @@ const getAllDamages = async (query: Record<string, unknown>) => {
       })
       .populate("items.supplier", "name phone email")
       .populate("orderId")
+      .populate("customerId", "name phone address")
       .populate("createdBy", "name email"),
     queryWithoutDate
   )
@@ -332,6 +338,7 @@ const getDamageById = async (id: string) => {
     })
     .populate("items.supplier", "name phone email")
     .populate("orderId")
+    .populate("customerId", "name phone address")
     .populate("createdBy", "name email");
 
   if (!result) {

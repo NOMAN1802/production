@@ -663,6 +663,7 @@ const InvoicesPage = () => {
                     <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
                         <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
+                                <th className="py-3 pr-4">S/N</th>
                                 {visibleColumns.orderId && <th className="py-3 pr-4">Order ID</th>}
                                 {visibleColumns.customer && <th className="py-3 pr-4">Customer</th>}
                                 {visibleColumns.date && <th className="py-3 pr-4">Created On</th>}
@@ -674,7 +675,7 @@ const InvoicesPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
-                            {invoices.map((invoice) => {
+                            {invoices.map((invoice, idx) => {
                                 // Calculate returns and damages for this order
                                 const orderReturns = (returnsData?.returns || []).filter(
                                     ret => ret.orderId === invoice._id ||
@@ -728,6 +729,7 @@ const InvoicesPage = () => {
 
                                 return (
                                     <tr key={invoice._id} className="transition hover:bg-slate-50/60">
+                                        <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
                                         {visibleColumns.orderId && (
                                             <td className="py-4 pr-4 font-semibold text-slate-900">{invoice.orderNumber}</td>
                                         )}

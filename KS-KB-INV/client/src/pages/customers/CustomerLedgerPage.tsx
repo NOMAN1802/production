@@ -581,6 +581,7 @@ const CustomerLedgerPage = () => {
                                     
                                     return (
                                         <tr key={order._id} className="hover:bg-slate-50 print:hover:bg-white">
+                                            <td className="px-2 py-2 text-slate-400 text-[10px] print-table-td">{idx + 1}</td>
                                             <td className="px-2 py-2 font-semibold text-slate-900 print-table-td">{order.orderNumber}</td>
                                             <td className="px-2 py-2 text-slate-600 print-table-td">{dayjs(order.createdAt).format('DD MMM YY')}</td>
                                             <td className="px-2 py-2 font-semibold text-slate-900 print-table-td">৳{grandTotal.toLocaleString()}</td>
@@ -619,6 +620,7 @@ const CustomerLedgerPage = () => {
                             <table className="min-w-full divide-y divide-slate-100 text-xs print-table">
                                 <thead className="bg-slate-50 print:bg-white">
                                     <tr>
+                                        <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">S/N</th>
                                         <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Return ID</th>
                                         <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Date</th>
                                         <th className="px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-500 print-table-th">Product</th>
@@ -628,8 +630,9 @@ const CustomerLedgerPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 bg-white print:divide-slate-200">
-                                    {filteredReturns.map((ret) => (
+                                    {filteredReturns.map((ret, idx) => (
                                         <tr key={ret._id} className="hover:bg-slate-50 print:hover:bg-white">
+                                            <td className="px-2 py-2 text-slate-400 text-[10px] print-table-td">{idx + 1}</td>
                                             <td className="px-2 py-2 font-semibold text-slate-900 print-table-td">{ret.returnNumber}</td>
                                             <td className="px-2 py-2 text-slate-600 print-table-td">{dayjs(ret.createdAt).format('DD MMM YY')}</td>
                                             <td className="px-2 py-2 text-slate-600 print-table-td">{ret.productName}</td>
@@ -649,7 +652,7 @@ const CustomerLedgerPage = () => {
                                 </tbody>
                                 <tfoot>
                                     <tr className="print-table-footer-row-red">
-                                        <td colSpan={3} className="print-table-footer-cell text-right">Total Returns:</td>
+                                        <td colSpan={4} className="print-table-footer-cell text-right">Total Returns:</td>
                                         <td className="print-table-footer-cell">৳{(displayStats?.returns || 0).toLocaleString()}</td>
                                         <td colSpan={2} className="print-table-footer-cell"></td>
                                     </tr>
@@ -667,6 +670,7 @@ const CustomerLedgerPage = () => {
                             <table className="min-w-full divide-y divide-slate-100 text-sm print-table">
                                 <thead className="bg-slate-50 print:bg-white">
                                     <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 print-table-th">S/N</th>
                                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 print-table-th">Damage ID</th>
                                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 print-table-th">Date</th>
                                         <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 print-table-th">Product</th>
@@ -674,8 +678,9 @@ const CustomerLedgerPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 bg-white print:divide-slate-200">
-                                    {filteredDamages.map((damage) => (
+                                    {filteredDamages.map((damage, idx) => (
                                         <tr key={damage._id} className="hover:bg-slate-50 print:hover:bg-white">
+                                            <td className="px-4 py-3 text-slate-400 text-[10px] print-table-td">{idx + 1}</td>
                                             <td className="px-4 py-3 font-semibold text-slate-900 print-table-td">{damage.damageNumber}</td>
                                             <td className="px-4 py-3 text-slate-600 print-table-td">{dayjs(damage.createdAt).format('DD MMM YYYY')}</td>
                                             <td className="px-4 py-3 text-slate-600 print-table-td">{damage.items.map(item => item.productName).join(', ')}</td>
@@ -685,7 +690,7 @@ const CustomerLedgerPage = () => {
                                 </tbody>
                                 <tfoot>
                                     <tr className="print-table-footer-row-red">
-                                        <td colSpan={3} className="print-table-footer-cell text-right">Total Damages:</td>
+                                        <td colSpan={4} className="print-table-footer-cell text-right">Total Damages:</td>
                                         <td className="print-table-footer-cell">৳{(displayStats?.damages || 0).toLocaleString()}</td>
                                     </tr>
                                 </tfoot>

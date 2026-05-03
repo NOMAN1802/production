@@ -117,11 +117,11 @@ const InvoiceModal = ({ orderId, onClose }: InvoiceModalProps) => {
             }
         });
 
-        // Original Amount = Total Amount (before returns/damages)
-        const originalAmount = order.totalAmount;
-        
-        // Grand Total = Original Amount - Returns - Damages
-        const grandTotal = originalAmount - totalReturn - totalDamage;
+        // Original Amount = total before discount (add back the discount from totalAmount)
+        const originalAmount = (order.totalAmount || 0) + (order.discount ?? 0);
+
+        // Grand Total = order.totalAmount (already post-discount) - Returns - Damages
+        const grandTotal = order.totalAmount - totalReturn - totalDamage;
         
         // Actual Paid Amount (considering status)
         const actualPaidAmount = order.status === 'completed' ? grandTotal : (order.paidAmount || 0);
