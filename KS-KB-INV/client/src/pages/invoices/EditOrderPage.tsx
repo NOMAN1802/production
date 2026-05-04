@@ -47,7 +47,7 @@ const EditOrderPage = () => {
 
     const [items, setItems] = useState<OrderItem[]>([]);
     const [status, setStatus] = useState<string>('pending');
-    const [discount, setDiscount] = useState(0);
+    const [discountPercent, setDiscountPercent] = useState(0);
     const [tax, setTax] = useState(0);
     const [additionalCharges, setAdditionalCharges] = useState(0);
     const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -66,7 +66,7 @@ const EditOrderPage = () => {
             queueMicrotask(() => {
                 setCustomer({
                     name: order.customer.name,
-                    email: order.customer.email || '',
+                    email: order.customer.email || 'customer@gmail.com',
                     phone: order.customer.phone || '',
                     address: order.customer.address || '',
                 });
@@ -83,7 +83,8 @@ const EditOrderPage = () => {
 
                 setItems(formItems);
                 setStatus(order.status);
-                setDiscount(order.discount || 0);
+                const subtotalVal = order.items.reduce((s: number, i: any) => s + (i.totalPrice || 0), 0);
+                setDiscountPercent(subtotalVal > 0 ? Math.round(((order.discount || 0) / subtotalVal) * 100) : 0);
                 setTax(order.tax || 0);
                 setAdditionalCharges(order.additionalCharges || 0);
                 setPaymentMethod(order.paymentMethod || 'cash');
@@ -98,9 +99,13 @@ const EditOrderPage = () => {
         return items.reduce((sum, item) => sum + item.totalPrice, 0);
     }, [items]);
 
+    const discountAmount = useMemo(() => {
+        return subtotal * (discountPercent / 100);
+    }, [subtotal, discountPercent]);
+
     const totalAmount = useMemo(() => {
-        return subtotal - discount + tax + additionalCharges;
-    }, [subtotal, discount, tax, additionalCharges]);
+        return subtotal - discountAmount + tax + additionalCharges;
+    }, [subtotal, discountAmount, tax, additionalCharges]);
 
     const addItem = () => {
         setItems([
@@ -174,7 +179,7 @@ const EditOrderPage = () => {
                 items: validItems,
                 status,
                 subtotal: Number(subtotal),
-                discount: Number(discount),
+                discount: Number(discountAmount.toFixed(2)),
                 tax: Number(tax),
                 additionalCharges: Number(additionalCharges),
                 totalAmount: Number(totalAmount),
@@ -399,14 +404,22 @@ const EditOrderPage = () => {
                                 <span className="font-semibold text-slate-900">৳{subtotal.toFixed(2)}</span>
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-slate-600 mb-1">Discount</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    value={discount}
-                                    onChange={(e) => setDiscount(Number(e.target.value))}
-                                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-                                />
+                                <label className="block text-xs font-semibold text-slate-600 mb-1">Discount (%)</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="1"
+                                        value={discountPercent}
+                                        onChange={(e) => setDiscountPercent(Math.min(100, Math.max(0, Number(e.target.value))))}
+                                        className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 pr-8 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
+                                    />
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">%</span>
+                                </div>
+                                {discountAmount > 0 && (
+                                    <p className="mt-1 text-xs text-slate-500">= ৳{discountAmount.toFixed(2)} off</p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-600 mb-1">Tax</label>

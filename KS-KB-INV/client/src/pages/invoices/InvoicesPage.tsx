@@ -544,8 +544,14 @@ const InvoicesPage = () => {
                         icon: '✅'
                     },
                     {
-                        label: 'Pending Sales',
-                        value: allOrders.filter((order) => order.status === 'pending').length,
+                        label: 'Unpaid Amount',
+                        value: `৳${allOrders
+                            .filter(o => o.status === 'pending' || o.status === 'partial')
+                            .reduce((sum, o) => {
+                                if (o.status === 'pending') return sum + (o.totalAmount || 0);
+                                return sum + Math.max(0, (o.totalAmount || 0) - (o.paidAmount || 0));
+                            }, 0)
+                            .toLocaleString()}`,
                         delta: '-1.12%',
                         color: 'amber',
                         icon: '⏳'

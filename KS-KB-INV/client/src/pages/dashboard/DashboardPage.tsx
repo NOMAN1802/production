@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Link } from 'react-router-dom';
 import {
     Cell,
     Line,
@@ -71,7 +72,8 @@ const DashboardPage = () => {
                         delta: '+2.56%',
                         color: 'blue',
                         icon: '📊',
-                        subtitle: 'Stock value'
+                        subtitle: 'Stock value',
+                        link: '/products',
                     },
                     {
                         label: 'Pending Payment',
@@ -79,15 +81,17 @@ const DashboardPage = () => {
                         delta: '+1.14%',
                         color: 'amber',
                         icon: '💰',
-                        subtitle: 'Outstanding'
+                        subtitle: 'Outstanding',
+                        link: '/invoices',
                     },
                     {
-                        label: 'Product Category',
+                        label: 'Active Products',
                         value: data.inventory?.totalProducts ?? 0,
                         delta: '-0.82%',
                         color: 'red',
                         icon: '📦',
-                        subtitle: 'Product Category'
+                        subtitle: 'Total products',
+                        link: '/products',
                     },
                     {
                         label: 'Customers',
@@ -95,7 +99,8 @@ const DashboardPage = () => {
                         delta: '+3.45%',
                         color: 'emerald',
                         icon: '👥',
-                        subtitle: 'Active customers'
+                        subtitle: 'Active customers',
+                        link: '/customers/ledger',
                     }
                 ].map((card) => (
                     <div key={card.label} className="group relative overflow-hidden rounded-3xl border border-white/70 bg-linear-to-br from-white/95 to-slate-50/95 p-6 shadow-lg shadow-slate-200/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1">
@@ -126,14 +131,26 @@ const DashboardPage = () => {
                                     }`}></div>
                             </div>
                         </div>
-                        <div className="mt-3 flex items-center">
-                            <span className={`text-xs font-semibold ${card.delta.startsWith('+') ? 'text-emerald-600' : 'text-red-500'
-                                }`}>
-                                {card.delta}
-                            </span>
-                            <span className="ml-1 text-xs text-slate-400">vs last month</span>
+                        <div className="mt-3 flex items-center justify-between">
+                            <div className="flex items-center">
+                                <span className={`text-xs font-semibold ${card.delta.startsWith('+') ? 'text-emerald-600' : 'text-red-500'
+                                    }`}>
+                                    {card.delta}
+                                </span>
+                                <span className="ml-1 text-xs text-slate-400">vs last month</span>
+                            </div>
+                            <Link
+                                to={card.link}
+                                className={`text-xs font-semibold ${card.color === 'emerald' ? 'text-emerald-600 hover:text-emerald-800' :
+                                    card.color === 'amber' ? 'text-amber-600 hover:text-amber-800' :
+                                        card.color === 'red' ? 'text-red-600 hover:text-red-800' :
+                                            'text-blue-600 hover:text-blue-800'
+                                    } underline underline-offset-2 transition-colors`}
+                            >
+                                View Details
+                            </Link>
                         </div>
-                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 ${card.color === 'emerald' ? 'bg-emerald-500' :
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none ${card.color === 'emerald' ? 'bg-emerald-500' :
                             card.color === 'amber' ? 'bg-amber-500' :
                                 card.color === 'red' ? 'bg-red-500' :
                                     'bg-blue-500'

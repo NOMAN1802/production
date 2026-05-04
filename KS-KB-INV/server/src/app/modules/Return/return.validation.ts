@@ -19,7 +19,7 @@ const createReturnValidationSchema = z.object({
     customer: z.object({
       name: z.string().min(1, "Customer name is required"),
       phone: z.string().optional().or(z.literal('')),
-      email: z.union([z.string().email(), z.literal('')]).optional(),
+      email: z.string().optional(),
     }),
     reason: z.string().optional(),
     subtotal: z.number().min(0, "Subtotal must be non-negative"),

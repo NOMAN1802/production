@@ -421,7 +421,6 @@ const PurchaseProductPage = () => {
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">SKU</th>
-                                    <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Supplier</th>
                                     <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Category</th>
                                     <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Stock</th>
                                     <th className="px-2 py-1.5 text-right text-[9px] font-semibold uppercase tracking-wider text-slate-700">Purchase Price</th>
@@ -431,18 +430,13 @@ const PurchaseProductPage = () => {
                             <tbody className="divide-y divide-slate-200 bg-white">
                                 {filteredProducts.length === 0 ? (
                                     <tr>
-                                        <td colSpan={8} className="px-2 py-3 text-center text-xs text-slate-500">
+                                        <td colSpan={7} className="px-2 py-3 text-center text-xs text-slate-500">
                                             {selectedSupplierId ? 'No products found for the selected supplier' : 'No products found'}
                                         </td>
                                     </tr>
                                 ) : (
                                     filteredProducts.map((product, idx) => {
                                         const isSelected = selectedProductIds.has(product._id);
-
-                                        // Get supplier: prioritize purchase item supplier, then selected supplier, then historical supplier
-                                        const purchaseItem = purchaseItems.find(item => item.productId === product._id);
-                                        const supplierIdForDisplay = purchaseItem?.supplierId || selectedSupplierId || getProductSupplierId(product._id);
-                                        const productSupplier = supplierIdForDisplay ? suppliers.find(s => s._id === supplierIdForDisplay) : null;
 
                                         return (
                                             <tr key={product._id} className={isSelected ? 'bg-brand/5' : 'hover:bg-slate-50'}>
@@ -453,9 +447,6 @@ const PurchaseProductPage = () => {
                                                 </td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <div className="text-xs text-slate-600">{product.sku || 'N/A'}</div>
-                                                </td>
-                                                <td className="px-2 py-1.5 whitespace-nowrap">
-                                                    <div className="text-xs text-slate-600">{productSupplier ? productSupplier.name : 'N/A'}</div>
                                                 </td>
                                                 <td className="px-2 py-1.5 whitespace-nowrap">
                                                     <div className="text-xs text-slate-600">{product.categoryName || 'N/A'}</div>

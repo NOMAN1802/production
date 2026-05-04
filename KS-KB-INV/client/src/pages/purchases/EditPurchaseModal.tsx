@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useUpdatePurchaseMutation, type Purchase } from '@/services/purchasesApi';
 
@@ -23,32 +23,16 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
     const [updatePurchase, { isLoading }] = useUpdatePurchaseMutation();
 
     const [formData, setFormData] = useState<FormData>({
-        supplierName: '',
-        supplierPhone: '',
-        supplierEmail: '',
-        supplierContactPerson: '',
-        supplierAddress: '',
-        status: 'pending',
-        paidAmount: '',
-        paymentMethod: '',
-        notes: '',
+        supplierName: purchase?.supplier?.name || '',
+        supplierPhone: purchase?.supplier?.phone || '',
+        supplierEmail: purchase?.supplier?.email || '',
+        supplierContactPerson: purchase?.supplier?.contactPerson || '',
+        supplierAddress: purchase?.supplier?.address || '',
+        status: purchase?.status || 'pending',
+        paidAmount: purchase?.paidAmount != null ? String(purchase.paidAmount) : '',
+        paymentMethod: purchase?.paymentMethod || '',
+        notes: purchase?.notes || '',
     });
-
-    useEffect(() => {
-        if (purchase) {
-            setFormData({
-                supplierName: purchase.supplier?.name || '',
-                supplierPhone: purchase.supplier?.phone || '',
-                supplierEmail: purchase.supplier?.email || '',
-                supplierContactPerson: purchase.supplier?.contactPerson || '',
-                supplierAddress: purchase.supplier?.address || '',
-                status: purchase.status || 'pending',
-                paidAmount: purchase.paidAmount != null ? String(purchase.paidAmount) : '',
-                paymentMethod: purchase.paymentMethod || '',
-                notes: purchase.notes || '',
-            });
-        }
-    }, [purchase]);
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -117,6 +101,61 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
                     <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-5">
+                        {/* Purchase Items Summary (read-only) */}
+                        {purchase.items && purchase.items.length > 0 && (
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-800 mb-3">Purchased Items</h3>
+                                <div className="rounded-xl border border-slate-100 overflow-hidden">
+                                    <table className="w-full text-xs">
+                                        <thead className="bg-slate-50">
+                                            <tr>
+                                                <th className="text-left px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Product</th>
+                                                <th className="text-center px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Qty</th>
+                                                <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Unit Price</th>
+                                                <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                            {purchase.items.map((item, index) => (
+                                                <tr key={index} className="hover:bg-slate-50/50">
+                                                    <td className="px-3 py-2 text-slate-700 font-medium">{item.productName}</td>
+                                                    <td className="px-3 py-2 text-center text-slate-600">{item.quantity}</td>
+                                                    <td className="px-3 py-2 text-right text-slate-600">৳{(item.unitPrice || 0).toLocaleString()}</td>
+                                                    <td className="px-3 py-2 text-right font-semibold text-slate-900">৳{(item.totalPrice || 0).toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="mt-2 space-y-1 rounded-xl bg-slate-50 px-4 py-3 text-xs">
+                                    {(purchase.discount ?? 0) > 0 && (
+                                        <div className="flex justify-between text-slate-600">
+                                            <span>Discount</span>
+                                            <span className="text-red-500">-৳{purchase.discount!.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {(purchase.tax ?? 0) > 0 && (
+                                        <div className="flex justify-between text-slate-600">
+                                            <span>Tax</span>
+                                            <span>+৳{purchase.tax!.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {(purchase.additionalCharges ?? 0) > 0 && (
+                                        <div className="flex justify-between text-slate-600">
+                                            <span>Additional Charges</span>
+                                            <span>+৳{purchase.additionalCharges!.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between font-bold text-slate-900 border-t border-slate-200 pt-1.5 mt-1">
+                                        <span>Total Amount</span>
+                                        <span className="text-green-600">৳{(purchase.totalAmount || 0).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="border-t border-slate-100" />
+
                         {/* Supplier Info */}
                         <div>
                             <h3 className="text-sm font-bold text-slate-800 mb-3">Supplier Information</h3>

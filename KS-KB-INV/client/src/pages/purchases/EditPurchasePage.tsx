@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeftIcon, CheckIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 import dayjs from 'dayjs';
-import { useGetPurchaseByIdQuery, useUpdatePurchaseMutation, type PurchaseItem } from '@/services/purchasesApi';
+import { useGetPurchaseByIdQuery, useUpdatePurchaseMutation, type Purchase, type PurchaseItem } from '@/services/purchasesApi';
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
 
@@ -14,31 +14,28 @@ const inputClass =
 const labelClass = 'block text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide';
 
 const EditPurchasePage = () => {
-    const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-
     const { data: purchase, isLoading, isError, refetch } = useGetPurchaseByIdQuery(id!);
+
+    if (isLoading) return <Loader fullScreen message="Loading purchase..." />;
+    if (isError || !purchase) return <ErrorState description="Purchase not found." onRetry={refetch} />;
+
+    return <EditPurchaseForm purchase={purchase} />;
+};
+
+const EditPurchaseForm = ({ purchase }: { purchase: Purchase }) => {
+    const navigate = useNavigate();
     const [updatePurchase, { isLoading: isSaving }] = useUpdatePurchaseMutation();
 
-    const [items, setItems] = useState<EditableItem[]>([]);
-    const [supplierName, setSupplierName] = useState('');
-    const [supplierPhone, setSupplierPhone] = useState('');
-    const [supplierEmail, setSupplierEmail] = useState('');
-    const [supplierContactPerson, setSupplierContactPerson] = useState('');
-    const [supplierAddress, setSupplierAddress] = useState('');
-    const [notes, setNotes] = useState('');
-
-    useEffect(() => {
-        if (purchase) {
-            setItems(purchase.items.map((item, i) => ({ ...item, _key: `${i}-${Date.now()}` })));
-            setSupplierName(purchase.supplier.name || '');
-            setSupplierPhone(purchase.supplier.phone || '');
-            setSupplierEmail(purchase.supplier.email || '');
-            setSupplierContactPerson(purchase.supplier.contactPerson || '');
-            setSupplierAddress(purchase.supplier.address || '');
-            setNotes(purchase.notes || '');
-        }
-    }, [purchase]);
+    const [items, setItems] = useState<EditableItem[]>(() =>
+        purchase.items.map((item, i) => ({ ...item, _key: String(i) }))
+    );
+    const [supplierName, setSupplierName] = useState(purchase.supplier.name || '');
+    const [supplierPhone, setSupplierPhone] = useState(purchase.supplier.phone || '');
+    const [supplierEmail, setSupplierEmail] = useState(purchase.supplier.email || '');
+    const [supplierContactPerson, setSupplierContactPerson] = useState(purchase.supplier.contactPerson || '');
+    const [supplierAddress, setSupplierAddress] = useState(purchase.supplier.address || '');
+    const [notes, setNotes] = useState(purchase.notes || '');
 
     const updateItem = (key: string, field: keyof PurchaseItem, value: number) => {
         setItems((prev) =>
@@ -87,6 +84,7 @@ const EditPurchasePage = () => {
                         contactPerson: supplierContactPerson || undefined,
                         address: supplierAddress || undefined,
                     },
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     items: items.map(({ _key, ...item }) => item),
                     subtotal,
                     totalAmount: grandTotal,
@@ -99,9 +97,6 @@ const EditPurchasePage = () => {
             toast.error('Failed to update purchase');
         }
     };
-
-    if (isLoading) return <Loader fullScreen message="Loading purchase..." />;
-    if (isError || !purchase) return <ErrorState description="Purchase not found." onRetry={refetch} />;
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">

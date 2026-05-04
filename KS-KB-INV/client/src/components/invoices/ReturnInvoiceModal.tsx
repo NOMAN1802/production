@@ -125,7 +125,7 @@ const ReturnInvoiceModal = ({ returnId, onClose }: ReturnInvoiceModalProps) => {
                                             Date: {returnDetails.createdAt ? dayjs(returnDetails.createdAt).format('DD MMM YYYY') : 'N/A'}
                                         </p>
                                         <div className="mt-1.5 pt-1.5 border-t border-slate-200">
-                                            <p className="text-[9px] font-bold text-slate-900 uppercase tracking-wide mb-0.5">Return To:</p>
+                                            <p className="text-[9px] font-bold text-slate-900 uppercase tracking-wide mb-0.5">Return From:</p>
                                             <div className="text-slate-700 text-[9px]">
                                                 <p className="font-semibold">{returnDetails.customer?.name || 'N/A'}</p>
                                                 {returnDetails.customer?.phone && <p className="mt-0.5">Phone: {returnDetails.customer.phone}</p>}

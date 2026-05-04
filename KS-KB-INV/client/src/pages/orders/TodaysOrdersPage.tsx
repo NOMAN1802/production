@@ -10,6 +10,7 @@ import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
 import { useGetOrdersQuery } from '@/services/ordersApi';
 import { useGetReturnsQuery } from '@/services/returnsApi';
+import { useGetDamagesQuery } from '@/services/damagesApi';
 import * as XLSX from 'xlsx';
 import kabirLogo from '@/assets/kabirLogo.png';
 
@@ -27,6 +28,8 @@ interface DailySummary {
     totalAmount: number;
     totalReturns: number;
     returnAmount: number;
+    totalDamages: number;
+    damageAmount: number;
     netAmount: number;
 }
 
@@ -53,6 +56,15 @@ const TodaysOrdersPage = () => {
         search: '', // Add default search to avoid API errors
         limit: 10000, // Get all returns to match with today's orders
     });
+
+    // Fetch damages for the selected date
+    const { data: damagesData, isLoading: damagesLoading } = useGetDamagesQuery({
+        startDate: dayjs(selectedDate).startOf('day').toISOString(),
+        endDate: dayjs(selectedDate).endOf('day').toISOString(),
+        limit: 10000,
+    });
+
+    const todayDamages = useMemo(() => damagesData?.damages || [], [damagesData?.damages]);
 
     const allOrders = ordersData?.result || [];
     const allReturns = returnsData?.returns || [];
@@ -321,30 +333,23 @@ const TodaysOrdersPage = () => {
 
     const paginatedOrderSales = useMemo(() => orderWiseSales.slice((page - 1) * limit, page * limit), [orderWiseSales, page]);
 
-    // Calculate daily summary from orderWiseSales
+    // Calculate daily summary from orderWiseSales to stay consistent with the Grand Total section
     const dailySummary: DailySummary = useMemo(() => {
-        // Calculate from all orders for today
-        const totalAmount = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
-
-        // Calculate return totals from all returns linked to today's orders
-        const returnAmount = returns.reduce((sum, ret) => {
-            if (ret.items && Array.isArray(ret.items) && ret.items.length > 0) {
-                const retTotal = ret.items.reduce((itemSum: number, item: any) =>
-                    itemSum + (item.totalPrice || (item.quantity * item.unitPrice) || 0), 0
-                );
-                return sum + retTotal;
-            }
-            return sum + (ret.totalAmount || ((ret.quantity ?? 0) * (ret.unitPrice ?? 0)) || 0);
-        }, 0);
+        const totalAmount = orderWiseSales.reduce((sum, order) => sum + order.orderAmount, 0);
+        const returnAmount = orderWiseSales.reduce((sum, order) => sum + order.returnAmount, 0);
+        const damageAmount = todayDamages.reduce((sum, dmg) => sum + (dmg.totalLoss || 0), 0);
+        const netAmount = totalAmount - returnAmount - damageAmount;
 
         return {
             totalOrders: orders.length,
             totalAmount,
             totalReturns: returns.length,
             returnAmount,
-            netAmount: totalAmount - returnAmount
+            totalDamages: todayDamages.length,
+            damageAmount,
+            netAmount,
         };
-    }, [orders, returns]);
+    }, [orderWiseSales, orders.length, returns.length, todayDamages]);
 
     // Report content for PDF/Print - memoized to avoid recreating on every render
     // Must be called before early returns per React hooks rules
@@ -454,7 +459,13 @@ const TodaysOrdersPage = () => {
                                 <tr>
                                     <td style={{ padding: '3px', color: '#d97706', fontSize: '8px' }}>Total Returns</td>
                                     <td style={{ padding: '3px', textAlign: 'right', color: '#d97706', fontSize: '8px' }}>
-                                        -৳{orderWiseSales.reduce((sum, order) => sum + order.returnAmount, 0).toLocaleString()}
+                                        -৳{dailySummary.returnAmount.toLocaleString()}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style={{ padding: '3px', color: '#dc2626', fontSize: '8px' }}>Total Damages</td>
+                                    <td style={{ padding: '3px', textAlign: 'right', color: '#dc2626', fontSize: '8px' }}>
+                                        -৳{dailySummary.damageAmount.toLocaleString()}
                                     </td>
                                 </tr>
                                 <tr style={{ borderTop: '1px solid #000' }}>
@@ -538,6 +549,7 @@ const TodaysOrdersPage = () => {
             ['SUMMARY'],
             ['Total Orders', dailySummary.totalOrders, '', '', '', '', dailySummary.totalAmount],
             ['Total Returns', dailySummary.totalReturns, '', '', '', '', -dailySummary.returnAmount],
+            ['Total Damages', dailySummary.totalDamages, '', '', '', '', -dailySummary.damageAmount],
             ['Net Amount', '', '', '', '', '', dailySummary.netAmount]
         ];
 
@@ -556,7 +568,7 @@ const TodaysOrdersPage = () => {
         XLSX.writeFile(wb, `Daily_Report_${selectedDate}.xlsx`);
     };
 
-    if (ordersLoading || returnsLoading) {
+    if (ordersLoading || returnsLoading || damagesLoading) {
         return <Loader fullScreen message="Loading today's orders..." />;
     }
 
@@ -608,7 +620,7 @@ const TodaysOrdersPage = () => {
             </div>
 
             {/* Summary Cards */}
-            <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3 print:grid-cols-3 print:gap-2">
+            <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 print:grid-cols-4 print:gap-2">
                 {[
                     {
                         label: 'Total Orders',
@@ -627,12 +639,20 @@ const TodaysOrdersPage = () => {
                         subtitle: `৳${dailySummary.returnAmount.toLocaleString()}`
                     },
                     {
+                        label: 'Damages',
+                        value: dailySummary.totalDamages,
+                        delta: '-0%',
+                        color: 'red',
+                        icon: '⚠️',
+                        subtitle: `৳${dailySummary.damageAmount.toLocaleString()}`
+                    },
+                    {
                         label: 'Net Amount',
                         value: `৳${dailySummary.netAmount.toLocaleString()}`,
                         delta: '+0%',
                         color: 'green',
                         icon: '💰',
-                        subtitle: 'After returns'
+                        subtitle: 'After returns & damages'
                     },
                 ].map((card) => (
                     <div key={card.label} className="group relative overflow-hidden rounded-3xl border border-white/70 bg-linear-to-br from-white/95 to-slate-50/95 p-6 shadow-lg shadow-slate-200/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 print:shadow-none print:border-slate-300 print:p-2">
@@ -883,13 +903,16 @@ const TodaysOrdersPage = () => {
                                     <div className="text-xs print:text-[8px] text-slate-600 print:text-black mb-0.5">Grand Total</div>
                                     <div className="space-y-0.5">
                                         <div className="text-sm print:text-[9px] font-semibold text-slate-900 print:text-black">
-                                            Orders: ৳{orderWiseSales.reduce((sum, order) => sum + order.orderAmount, 0).toLocaleString()}
+                                            Orders: ৳{dailySummary.totalAmount.toLocaleString()}
                                         </div>
                                         <div className="text-sm print:text-[9px] font-semibold text-orange-600 print:text-black">
-                                            Returns: -৳{orderWiseSales.reduce((sum, order) => sum + order.returnAmount, 0).toLocaleString()}
+                                            Returns: -৳{dailySummary.returnAmount.toLocaleString()}
+                                        </div>
+                                        <div className="text-sm print:text-[9px] font-semibold text-red-600 print:text-black">
+                                            Damages: -৳{dailySummary.damageAmount.toLocaleString()}
                                         </div>
                                         <div className="text-base print:text-[10px] font-bold text-green-600 print:text-black border-t border-slate-300 pt-1 mt-1 print:pt-0.5 print:mt-0.5">
-                                            Net Total: ৳{orderWiseSales.reduce((sum, order) => sum + order.netAmount, 0).toLocaleString()}
+                                            Net Total: ৳{dailySummary.netAmount.toLocaleString()}
                                         </div>
                                     </div>
                                     <div className="text-[10px] print:text-[7px] text-slate-500 print:text-black mt-1">
@@ -976,10 +999,42 @@ const TodaysOrdersPage = () => {
                 )}
             </div>
 
+            {/* Damage Summary */}
+            <div className="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-card print:shadow-none print:border-slate-300 print:p-2 print:hidden">
+                <h3 className="text-base font-bold text-slate-900 mb-3 print:text-[10px]">Damage Summary</h3>
+                {todayDamages.length === 0 ? (
+                    <p className="text-xs text-slate-500">No damages recorded today</p>
+                ) : (
+                    <div className="space-y-2">
+                        {todayDamages.flatMap((dmg: any) =>
+                            dmg.items && Array.isArray(dmg.items) && dmg.items.length > 0
+                                ? dmg.items.map((item: any, idx: number) => (
+                                    <div key={`${dmg._id}-${idx}`} className="flex justify-between items-center py-1.5 border-b border-slate-100 last:border-0">
+                                        <div>
+                                            <p className="text-xs font-semibold text-slate-900">{item.productName || 'N/A'}</p>
+                                            <p className="text-[10px] text-slate-500">
+                                                Qty: {item.quantity ?? 0} · {item.damageType} {dmg.damageNumber ? `· ${dmg.damageNumber}` : ''}
+                                            </p>
+                                        </div>
+                                        <p className="text-xs font-semibold text-red-600">৳{(item.totalLoss || 0).toLocaleString()}</p>
+                                    </div>
+                                ))
+                                : []
+                        )}
+                        <div className="pt-2 border-t-2 border-slate-200">
+                            <div className="flex justify-between items-center text-xs font-bold text-slate-900">
+                                <span>Total Damage Loss</span>
+                                <span className="text-red-600">৳{dailySummary.damageAmount.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Final Summary */}
             <div className="rounded-2xl border border-white/70 bg-linear-to-r from-blue-50 to-indigo-50 p-4 shadow-card print:shadow-none print:border-slate-300 print:bg-white print:p-2">
                 <h3 className="text-base font-bold text-slate-900 mb-3 print:text-[10px] print:mb-1">Daily Summary</h3>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 print:grid-cols-3 print:gap-1">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 print:grid-cols-4 print:gap-1">
                     <div className="text-center">
                         <p className="text-xs print:text-[8px] text-slate-600 print:text-black">Gross Sales</p>
                         <p className="text-lg print:text-[9px] font-bold text-slate-900 print:text-black">৳{dailySummary.totalAmount.toLocaleString()}</p>
@@ -987,6 +1042,10 @@ const TodaysOrdersPage = () => {
                     <div className="text-center">
                         <p className="text-xs print:text-[8px] text-slate-600 print:text-black">Returns</p>
                         <p className="text-lg print:text-[9px] font-bold text-orange-600 print:text-black">-৳{dailySummary.returnAmount.toLocaleString()}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-xs print:text-[8px] text-slate-600 print:text-black">Damages</p>
+                        <p className="text-lg print:text-[9px] font-bold text-red-600 print:text-black">-৳{dailySummary.damageAmount.toLocaleString()}</p>
                     </div>
                     <div className="text-center">
                         <p className="text-xs print:text-[8px] text-slate-600 print:text-black">Net Sales</p>

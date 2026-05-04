@@ -17,8 +17,8 @@ interface TransformedReturnItem {
     returnNumber?: string;
     orderNumber?: string;
     createdAt?: string;
-    product?: string | { name?: string; _id?: string; supplier?: { name?: string } };
-    supplier?: { name?: string } | string | null;
+    product?: string | { name?: string; _id?: string };
+    customer?: { name?: string; phone?: string; email?: string };
     productName?: string;
     quantity?: number;
     unitPrice?: number;
@@ -98,16 +98,8 @@ const ReturnReportPage = () => {
         (data.returns as Return[]).forEach((returnEntry) => {
             // If return has items array, expand it
             if (returnEntry.items && Array.isArray(returnEntry.items) && returnEntry.items.length > 0) {
-                returnEntry.items.forEach((item: ReturnItem & { product?: any; supplierName?: string }) => {
+                returnEntry.items.forEach((item: ReturnItem & { product?: any }) => {
                     const productId = typeof item.product === 'string' ? item.product : item.product?._id;
-
-                    // Extract supplier information from various possible locations
-                    let supplier: { name?: string } | null = null;
-                    if (item.supplierName) {
-                        supplier = { name: item.supplierName };
-                    } else if (typeof item.product === 'object' && item.product?.supplier) {
-                        supplier = item.product.supplier;
-                    }
 
                     transformedReturns.push({
                         _id: `${returnEntry._id}-${productId || Math.random()}`,
@@ -119,7 +111,7 @@ const ReturnReportPage = () => {
                         quantity: item.quantity || 0,
                         unitPrice: item.unitPrice || 0,
                         totalPrice: item.totalPrice || 0,
-                        supplier: supplier,
+                        customer: returnEntry.customer,
                     } as TransformedReturnItem);
                 });
             } else {
@@ -135,15 +127,15 @@ const ReturnReportPage = () => {
         const query = searchQuery.toLowerCase().trim();
         return transformedReturns.filter((returnItem) => {
             const productName = (returnItem.productName || (typeof returnItem.product === 'object' ? returnItem.product?.name : '') || '').toLowerCase();
+            const returnNumber = (returnItem.returnNumber || '').toLowerCase();
             const orderNumber = (returnItem.orderNumber || '').toLowerCase();
-            const reason = (returnItem.reason || '').toLowerCase();
-            const supplierName = ((typeof returnItem.supplier === 'object' ? returnItem.supplier?.name : '') || (typeof returnItem.product === 'object' ? returnItem.product?.supplier?.name : '') || '').toLowerCase();
+            const customerName = (returnItem.customer?.name || '').toLowerCase();
 
             return (
                 productName.includes(query) ||
+                returnNumber.includes(query) ||
                 orderNumber.includes(query) ||
-                reason.includes(query) ||
-                supplierName.includes(query)
+                customerName.includes(query)
             );
         });
     }, [data, searchQuery]);
@@ -156,11 +148,13 @@ const ReturnReportPage = () => {
     });
 
     const handleDownloadExcel = () => {
-        const headers = ['Return Date', 'Product', 'Supplier', 'Quantity', 'Unit Price (৳)', 'Total (৳)'];
+        const headers = ['Return Date', 'Return No.', 'Order No.', 'Product', 'Customer', 'Quantity', 'Unit Price (৳)', 'Total (৳)'];
         const rows = filteredReturns.map((item: any) => [
             dayjs(item.createdAt).format('DD MMM YYYY'),
+            item.returnNumber || 'N/A',
+            item.orderNumber || 'N/A',
             item.productName || (typeof item.product === 'object' ? item.product?.name : '') || 'N/A',
-            (typeof item.supplier === 'object' ? item.supplier?.name : '') || (typeof item.product === 'object' ? item.product?.supplier?.name : '') || 'N/A',
+            item.customer?.name || 'N/A',
             item.quantity ?? 0,
             item.unitPrice ?? 0,
             item.totalPrice ?? 0,
@@ -267,7 +261,7 @@ const ReturnReportPage = () => {
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                                placeholder="Search by product, order, reason, or supplier..."
+                                placeholder="Search by product, return ID, order ID, or customer..."
                                 className="w-64 rounded-lg border border-slate-200 bg-white px-3 py-1.5 pl-9 text-xs focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
                             />
                             <svg
@@ -311,7 +305,7 @@ const ReturnReportPage = () => {
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">S/N</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Return Date</th>
                                 <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Product</th>
-                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Supplier</th>
+                                <th className="px-2 py-1.5 text-left text-[9px] font-semibold uppercase tracking-wider text-slate-700">Customer</th>
                                 <th className="px-2 py-1.5 text-center text-[9px] font-semibold uppercase tracking-wider text-slate-700">Quantity</th>
                                 <th className="px-2 py-1.5 text-right text-[9px] font-semibold uppercase tracking-wider text-slate-700">Unit Price</th>
                                 <th className="px-2 py-1.5 text-right text-[9px] font-semibold uppercase tracking-wider text-slate-700">Total</th>
@@ -335,7 +329,7 @@ const ReturnReportPage = () => {
                                             {returnItem.productName || (typeof returnItem.product === 'object' ? returnItem.product?.name : '') || 'N/A'}
                                         </td>
                                         <td className="px-2 py-1.5 text-xs text-slate-600">
-                                            {(typeof returnItem.supplier === 'object' ? returnItem.supplier?.name : '') || (typeof returnItem.product === 'object' ? returnItem.product?.supplier?.name : '') || 'N/A'}
+                                            {returnItem.customer?.name || 'N/A'}
                                         </td>
                                         <td className="px-2 py-1.5 whitespace-nowrap text-center text-xs text-orange-600 font-semibold">
                                             {returnItem.quantity}

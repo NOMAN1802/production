@@ -27,9 +27,12 @@ const ProductsPage = () => {
         categoryId: categoryFilter || undefined
     });
 
+    // Separate query for accurate stats across all products
+    const { data: allProductsData } = useGetProductsQuery({ limit: 10000 });
+
     const { data: categoriesData } = useGetCategoriesQuery({ limit: 100 });
     // Filter to show only active, non-deleted categories
-    const categories = useMemo(() => 
+    const categories = useMemo(() =>
         (categoriesData?.categories ?? []).filter(cat => cat.isActive !== false),
         [categoriesData?.categories]
     );
@@ -37,7 +40,9 @@ const ProductsPage = () => {
     const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
     const products = useMemo(() => data?.products ?? [], [data?.products]);
+    const allProducts = useMemo(() => allProductsData?.products ?? [], [allProductsData?.products]);
     const totalPages = useMemo(() => Math.ceil((data?.total ?? 0) / limit), [data?.total, limit]);
+
     const infoCards = useMemo(
         () => [
             {
@@ -49,8 +54,16 @@ const ProductsPage = () => {
                 subtitle: 'Tracked this cycle',
             },
             {
+                label: 'Stock Value',
+                value: `৳${allProducts.reduce((sum, p) => sum + (p.stockQuantity ?? 0) * (p.purchasePrice ?? 0), 0).toLocaleString()}`,
+                delta: '+0.0%',
+                color: 'emerald',
+                icon: '💰',
+                subtitle: 'Total inventory value',
+            },
+            {
                 label: 'Low Stock',
-                value: products.filter((p) => p.stockQuantity <= (p.minStockLevel ?? 10)).length,
+                value: allProducts.filter((p) => p.stockQuantity > 0 && p.stockQuantity <= (p.minStockLevel ?? 10)).length,
                 delta: '+0.0%',
                 color: 'orange',
                 icon: '⚠️',
@@ -58,14 +71,14 @@ const ProductsPage = () => {
             },
             {
                 label: 'Out of Stock',
-                value: products.filter((p) => p.stockQuantity === 0).length,
+                value: allProducts.filter((p) => p.stockQuantity === 0).length,
                 delta: '+0.0%',
                 color: 'red',
                 icon: '🚫',
                 subtitle: 'Need restocking',
             },
         ],
-        [products, data?.total]
+        [allProducts, data?.total]
     );
 
     const handlePageChange = (newPage: number) => {
@@ -159,7 +172,7 @@ const ProductsPage = () => {
                 </div>
             </div>
 
-            <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
                 {infoCards.map((card) => (
                     <div key={card.label} className="group relative overflow-hidden rounded-3xl border border-white/70 bg-linear-to-br from-white/95 to-slate-50/95 p-6 shadow-lg shadow-slate-200/40 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1">
                         <div className="flex items-start justify-between">
@@ -168,35 +181,42 @@ const ProductsPage = () => {
                                     <span className="text-lg">{card.icon}</span>
                                     <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">{card.label}</p>
                                 </div>
-                                <p className={`text-2xl font-bold ${card.color === 'orange' ? 'text-orange-600' :
+                                <p className={`text-2xl font-bold ${
+                                    card.color === 'emerald' ? 'text-emerald-600' :
+                                    card.color === 'orange' ? 'text-orange-600' :
                                     card.color === 'red' ? 'text-red-600' :
-                                        'text-blue-600'
-                                    } group-hover:scale-105 transition-transform duration-300`}>
+                                    'text-blue-600'
+                                } group-hover:scale-105 transition-transform duration-300`}>
                                     {card.value}
                                 </p>
                                 <p className="text-xs uppercase tracking-widest text-slate-400 mt-1">{card.subtitle}</p>
                             </div>
-                            <div className={`rounded-full p-2 ${card.color === 'orange' ? 'bg-orange-100' :
+                            <div className={`rounded-full p-2 ${
+                                card.color === 'emerald' ? 'bg-emerald-100' :
+                                card.color === 'orange' ? 'bg-orange-100' :
                                 card.color === 'red' ? 'bg-red-100' :
-                                    'bg-blue-100'
-                                } opacity-60 group-hover:opacity-100 transition-opacity duration-300`}>
-                                <div className={`h-2 w-2 rounded-full ${card.color === 'orange' ? 'bg-orange-500' :
+                                'bg-blue-100'
+                            } opacity-60 group-hover:opacity-100 transition-opacity duration-300`}>
+                                <div className={`h-2 w-2 rounded-full ${
+                                    card.color === 'emerald' ? 'bg-emerald-500' :
+                                    card.color === 'orange' ? 'bg-orange-500' :
                                     card.color === 'red' ? 'bg-red-500' :
-                                        'bg-blue-500'
-                                    }`}></div>
+                                    'bg-blue-500'
+                                }`}></div>
                             </div>
                         </div>
                         <div className="mt-3 flex items-center">
-                            <span className={`text-xs font-semibold ${card.delta.startsWith('+') ? 'text-emerald-600' : 'text-red-500'
-                                }`}>
+                            <span className={`text-xs font-semibold ${card.delta.startsWith('+') ? 'text-emerald-600' : 'text-red-500'}`}>
                                 {card.delta}
                             </span>
                             <span className="ml-1 text-xs text-slate-400">vs last month</span>
                         </div>
-                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 ${card.color === 'orange' ? 'bg-orange-500' :
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none ${
+                            card.color === 'emerald' ? 'bg-emerald-500' :
+                            card.color === 'orange' ? 'bg-orange-500' :
                             card.color === 'red' ? 'bg-red-500' :
-                                'bg-blue-500'
-                            }`}></div>
+                            'bg-blue-500'
+                        }`}></div>
                     </div>
                 ))}
             </section>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeftIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
@@ -6,34 +6,31 @@ import { useGetCustomerQuery, useUpdateCustomerMutation } from '@/services/custo
 import Loader from '@/components/common/Loader';
 import ErrorState from '@/components/common/ErrorState';
 
-const EditCustomerPage = () => {
-    const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
+type Customer = { _id: string; name: string; phone?: string; email?: string; address?: string; status: 'active' | 'inactive' };
 
+const EditCustomerPage = () => {
+    const { id } = useParams<{ id: string }>();
     const { data: customer, isLoading, isError, refetch } = useGetCustomerQuery(id!);
+
+    if (isLoading) return <Loader fullScreen message="Loading customer..." />;
+    if (isError || !customer) return <ErrorState description="Unable to load customer" onRetry={refetch} />;
+
+    return <EditCustomerForm customer={customer as Customer} id={id!} />;
+};
+
+const EditCustomerForm = ({ customer, id }: { customer: Customer; id: string }) => {
+    const navigate = useNavigate();
     const [updateCustomer, { isLoading: isSaving }] = useUpdateCustomerMutation();
 
     const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        email: '',
-        address: '',
-        status: 'active' as 'active' | 'inactive',
+        name: customer.name,
+        phone: customer.phone ?? '',
+        email: customer.email ?? '',
+        address: customer.address ?? '',
+        status: customer.status,
     });
 
     const [errors, setErrors] = useState<Partial<typeof formData>>({});
-
-    useEffect(() => {
-        if (customer) {
-            setFormData({
-                name: customer.name,
-                phone: customer.phone ?? '',
-                email: customer.email ?? '',
-                address: customer.address ?? '',
-                status: customer.status,
-            });
-        }
-    }, [customer]);
 
     const validate = () => {
         const newErrors: Partial<typeof formData> = {};
@@ -59,7 +56,7 @@ const EditCustomerPage = () => {
 
         try {
             await updateCustomer({
-                id: id!,
+                id,
                 data: {
                     name: formData.name.trim(),
                     phone: formData.phone.trim() || undefined,
@@ -74,9 +71,6 @@ const EditCustomerPage = () => {
             toast.error('Failed to update customer');
         }
     };
-
-    if (isLoading) return <Loader fullScreen message="Loading customer..." />;
-    if (isError) return <ErrorState description="Unable to load customer" onRetry={refetch} />;
 
     return (
         <div className="space-y-8">
