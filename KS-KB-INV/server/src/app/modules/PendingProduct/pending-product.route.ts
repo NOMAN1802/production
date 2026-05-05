@@ -20,6 +20,12 @@ router.get(
   PendingProductControllers.getAllPendingProducts
 );
 
+router.get(
+  '/stats',
+  auth(USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.staff),
+  PendingProductControllers.getPendingProductStats
+);
+
 router.patch(
   '/:id',
   auth(USER_ROLE.admin, USER_ROLE.manager, USER_ROLE.staff),

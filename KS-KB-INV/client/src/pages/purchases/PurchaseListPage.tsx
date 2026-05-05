@@ -678,16 +678,16 @@ const PurchaseListPage = () => {
                     </div>
 
                     <div className="mt-6 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                            <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                        <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                            <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                                 <tr>
-                                    <th className="py-3 pr-4">S/N</th>
-                                    <th className="py-3 pr-4">Date</th>
-                                    <th className="py-3 pr-4">Title</th>
-                                    <th className="py-3 pr-4">Supplier</th>
-                                    <th className="py-3 pr-4">Purchase On</th>
-                                    <th className="py-3 pr-4">Amount</th>
-                                    <th className="py-3">Actions</th>
+                                    <th className="py-2.5 pr-4">S/N</th>
+                                    <th className="py-2.5 pr-4">Date</th>
+                                    <th className="py-2.5 pr-4">Title</th>
+                                    <th className="py-2.5 pr-4">Supplier</th>
+                                    <th className="py-2.5 pr-4">Purchase On</th>
+                                    <th className="py-2.5 pr-4">Amount</th>
+                                    <th className="py-2.5">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -697,29 +697,29 @@ const PurchaseListPage = () => {
 
                                     return (
                                         <tr key={purchase._id} className="transition hover:bg-slate-50/70">
-                                            <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
-                                            <td className="py-4 pr-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                                                        <ShoppingCartIcon className="h-5 w-5 text-blue-600" />
+                                            <td className="py-2.5 pr-4 text-slate-400">{(page - 1) * limit + idx + 1}</td>
+                                            <td className="py-2.5 pr-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                                                        <ShoppingCartIcon className="h-4 w-4 text-blue-600" />
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-slate-900">
                                                             {purchase.createdAt ? dayjs(purchase.createdAt).format('DD MMM YYYY') : 'N/A'}
                                                         </p>
-                                                        <p className="text-xs text-slate-400">
+                                                        <p className="text-[10px] text-slate-400">
                                                             {purchase.createdAt ? dayjs(purchase.createdAt).format('hh:mm A') : ''}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-4 pr-4 font-semibold text-slate-900">{purchase.purchaseNumber}</td>
-                                            <td className="py-4 pr-4 text-slate-700">{supplier?.name || 'N/A'}</td>
-                                            <td className="py-4 pr-4 text-xs text-slate-500">
+                                            <td className="py-2.5 pr-4 font-semibold text-slate-900">{purchase.purchaseNumber}</td>
+                                            <td className="py-2.5 pr-4 text-slate-700">{supplier?.name || 'N/A'}</td>
+                                            <td className="py-2.5 pr-4 text-slate-500">
                                                 {purchase.createdAt ? dayjs(purchase.createdAt).format('DD MMM YYYY') : 'N/A'}
                                             </td>
-                                            <td className="py-4 pr-4 font-semibold text-slate-900">৳{(purchase.totalAmount || 0).toLocaleString()}</td>
-                                            <td className="py-4">
+                                            <td className="py-2.5 pr-4 font-semibold text-slate-900">৳{(purchase.totalAmount || 0).toLocaleString()}</td>
+                                            <td className="py-2.5">
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => handleViewPurchase(purchase._id)}

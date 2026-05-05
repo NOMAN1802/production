@@ -172,6 +172,36 @@ const UsersPage = () => {
 
     const totalPages = Math.ceil(data.total / data.limit);
 
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        const maxVisible = 10;
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else if (page <= 6) {
+            for (let i = 1; i <= maxVisible; i++) pages.push(i);
+            pages.push('...');
+            pages.push(totalPages);
+        } else if (page >= totalPages - 5) {
+            pages.push(1);
+            pages.push('...');
+            for (let i = totalPages - (maxVisible - 1); i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            pages.push('...');
+            for (let i = page - 2; i <= page + 2; i++) pages.push(i);
+            pages.push('...');
+            pages.push(totalPages);
+        }
+        return pages;
+    };
+
     return (
         <div className="space-y-8">
             {/* Header */}
@@ -298,27 +328,38 @@ const UsersPage = () => {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
+                {data.total > 0 && (
+                    <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-6">
                         <p className="text-sm text-slate-600">
-                            Showing {((page - 1) * data.limit) + 1} to {Math.min(page * data.limit, data.total)} of {data.total} users
-                            {filteredUsers.length < data.users.length && ` (${filteredUsers.length} excluding you)`}
+                            Showing <span className="font-semibold text-slate-900">{(page - 1) * data.limit + 1}</span> to{' '}
+                            <span className="font-semibold text-slate-900">{Math.min(page * data.limit, data.total)}</span> of{' '}
+                            <span className="font-semibold text-slate-900">{data.total}</span> entries
                         </p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                             <button
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 Previous
                             </button>
-                            <span className="px-4 py-2 text-sm font-semibold text-slate-700">
-                                Page {page} of {totalPages}
-                            </span>
+                            {getPageNumbers().map((pageNum, idx) => (
+                                pageNum === '...' ? (
+                                    <span key={`ellipsis-${idx}`} className="flex h-9 w-9 items-center justify-center text-sm text-slate-400">...</span>
+                                ) : (
+                                    <button
+                                        key={pageNum}
+                                        onClick={() => handlePageChange(pageNum as number)}
+                                        className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum ? 'bg-brand text-white shadow-md shadow-brand/30' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+                                    >
+                                        {pageNum}
+                                    </button>
+                                )
+                            ))}
                             <button
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                onClick={() => handlePageChange(page + 1)}
                                 disabled={page === totalPages}
-                                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
                             >
                                 Next
                             </button>

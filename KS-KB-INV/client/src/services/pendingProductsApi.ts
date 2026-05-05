@@ -3,6 +3,12 @@ import type { ApiResponse } from './types';
 
 export type PendingProductStatus = 'pending' | 'partial_received' | 'received';
 
+export type PartialReceive = {
+    quantity: number;
+    amount: number;
+    date: string;
+};
+
 export type PendingProduct = {
     _id: string;
     productName: string;
@@ -12,6 +18,8 @@ export type PendingProduct = {
     supplierName?: string;
     status: PendingProductStatus;
     receivedQuantity?: number;
+    receivedAmount?: number;
+    partialReceives?: PartialReceive[];
     notes?: string;
     createdAt: string;
     updatedAt: string;
@@ -30,6 +38,7 @@ export type CreatePendingProductsInput = {
 export type UpdatePendingProductInput = {
     status?: PendingProductStatus;
     receivedQuantity?: number;
+    partialAmount?: number;
     notes?: string;
 };
 
@@ -38,17 +47,29 @@ export type PendingProductsResponse = {
     meta: { total: number; page: number; limit: number };
 };
 
+export type PendingProductStats = {
+    total: { count: number; amount: number };
+    pending: { count: number; amount: number };
+    partial_received: { count: number; amount: number; receivedAmount: number };
+    received: { count: number; amount: number };
+};
+
 export const pendingProductsApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
         getPendingProducts: builder.query<
             PendingProductsResponse,
-            { page?: number; limit?: number; search?: string; status?: string }
+            { page?: number; limit?: number; search?: string; status?: string; startDate?: string; endDate?: string }
         >({
             query: (params) => ({ url: '/pending-products', params }),
             transformResponse: (response: ApiResponse<PendingProduct[]>) => ({
                 result: response.data,
                 meta: response.meta as PendingProductsResponse['meta'],
             }),
+            providesTags: ['PendingProducts'],
+        }),
+        getPendingProductStats: builder.query<PendingProductStats, { startDate?: string; endDate?: string } | void>({
+            query: (params) => ({ url: '/pending-products/stats', params: params ?? undefined }),
+            transformResponse: (response: ApiResponse<PendingProductStats>) => response.data,
             providesTags: ['PendingProducts'],
         }),
         createPendingProducts: builder.mutation<PendingProduct[], CreatePendingProductsInput>({
@@ -77,6 +98,7 @@ export const pendingProductsApi = baseApi.injectEndpoints({
 
 export const {
     useGetPendingProductsQuery,
+    useGetPendingProductStatsQuery,
     useCreatePendingProductsMutation,
     useUpdatePendingProductMutation,
     useDeletePendingProductMutation,

@@ -54,9 +54,21 @@ const deletePendingProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getPendingProductStats = catchAsync(async (req, res) => {
+  const result = await PendingProductServices.getPendingProductStats(req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Pending product stats retrieved successfully',
+    data: result,
+  });
+});
+
 export const PendingProductControllers = {
   createPendingProducts,
   getAllPendingProducts,
+  getPendingProductStats,
   updatePendingProduct,
   deletePendingProduct,
 };

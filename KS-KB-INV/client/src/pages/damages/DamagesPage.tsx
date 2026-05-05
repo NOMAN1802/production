@@ -734,15 +734,15 @@ const DamagesPage = () => {
                     </div>
 
                     <div className="mt-6 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                            <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                        <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                            <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                                 <tr>
-                                    <th className="py-3 pr-4">S/N</th>
-                                    <th className="py-3 pr-4">Damage ID</th>
-                                    <th className="py-3 pr-4">Supplier</th>
-                                    <th className="py-3 pr-4">Amount</th>
-                                    <th className="py-3 pr-4">Damaged Date</th>
-                                    <th className="py-3">Actions</th>
+                                    <th className="py-2.5 pr-4">S/N</th>
+                                    <th className="py-2.5 pr-4">Damage ID</th>
+                                    <th className="py-2.5 pr-4">Supplier</th>
+                                    <th className="py-2.5 pr-4">Amount</th>
+                                    <th className="py-2.5 pr-4">Damaged Date</th>
+                                    <th className="py-2.5">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -759,36 +759,36 @@ const DamagesPage = () => {
 
                                     return (
                                         <tr key={damage._id} className="transition hover:bg-slate-50/70">
-                                            <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
-                                            <td className="py-4 pr-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100 text-lg">
-                                                        <PrinterIcon className="h-5 w-5 text-red-600" />
+                                            <td className="py-2.5 pr-4 text-slate-400">{(page - 1) * limit + idx + 1}</td>
+                                            <td className="py-2.5 pr-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100">
+                                                        <PrinterIcon className="h-4 w-4 text-red-600" />
                                                     </div>
                                                     <div>
                                                         <p className="font-semibold text-slate-900">{damage.damageNumber}</p>
                                                         {damage.orderNumber && (
-                                                            <p className="text-xs text-slate-400">Order: {damage.orderNumber}</p>
+                                                            <p className="text-[10px] text-slate-400">Order: {damage.orderNumber}</p>
                                                         )}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-4 pr-4 text-slate-700">
-                                                <div className="space-y-1">
+                                            <td className="py-2.5 pr-4 text-slate-700">
+                                                <div className="space-y-0.5">
                                                     {supplierNamesArray.slice(0, 2).map((name, idx) => (
-                                                        <p key={idx} className="text-sm">{name}</p>
+                                                        <p key={idx}>{name}</p>
                                                     ))}
                                                     {supplierNamesArray.length > 2 && (
-                                                        <p className="text-xs text-slate-500">+{supplierNamesArray.length - 2} more</p>
+                                                        <p className="text-[10px] text-slate-500">+{supplierNamesArray.length - 2} more</p>
                                                     )}
                                                     {supplierNamesArray.length === 0 && <span>N/A</span>}
                                                 </div>
                                             </td>
-                                            <td className="py-4 pr-4 font-semibold text-red-600">৳{(damage.totalLoss || 0).toLocaleString()}</td>
-                                            <td className="py-4 pr-4 text-slate-700">
-                                                <p className="text-xs">{dayjs(damage.createdAt).format('DD MMM YYYY')}</p>
+                                            <td className="py-2.5 pr-4 font-semibold text-red-600">৳{(damage.totalLoss || 0).toLocaleString()}</td>
+                                            <td className="py-2.5 pr-4 text-slate-700">
+                                                {dayjs(damage.createdAt).format('DD MMM YYYY')}
                                             </td>
-                                            <td className="py-4">
+                                            <td className="py-2.5">
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => handleViewClick(damage)}

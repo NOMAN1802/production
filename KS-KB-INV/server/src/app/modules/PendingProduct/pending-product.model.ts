@@ -13,7 +13,15 @@ const PendingProductSchema: Schema = new Schema<TPendingProduct>(
       enum: ['pending', 'partial_received', 'received'],
       default: 'pending',
     },
-    receivedQuantity: { type: Number, min: 0 },
+    receivedQuantity: { type: Number, min: 0, default: 0 },
+    receivedAmount: { type: Number, min: 0, default: 0 },
+    partialReceives: [
+      {
+        quantity: { type: Number, required: true },
+        amount: { type: Number, required: true },
+        date: { type: Date, default: Date.now },
+      },
+    ],
     notes: { type: String },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User' },
     isDeleted: { type: Boolean, default: false },

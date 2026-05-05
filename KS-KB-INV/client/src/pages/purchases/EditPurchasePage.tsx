@@ -46,12 +46,17 @@ const EditPurchaseForm = ({ purchase }: { purchase: Purchase }) => {
                     const qty = field === 'quantity' ? value : item.quantity;
                     const price = field === 'unitPrice' ? value : item.unitPrice;
                     updated.totalPrice = qty * price;
+                    if (field === 'unitPrice' && item.markupPercent) {
+                        updated.sellingPrice = parseFloat((value * (1 + item.markupPercent / 100)).toFixed(2));
+                    }
                 }
                 if (field === 'markupPercent') {
-                    updated.sellingPrice = item.unitPrice * (1 + value / 100);
+                    updated.sellingPrice = parseFloat((item.unitPrice * (1 + value / 100)).toFixed(2));
                 }
                 if (field === 'sellingPrice') {
-                    updated.totalPrice = item.quantity * value;
+                    if (item.unitPrice > 0) {
+                        updated.markupPercent = parseFloat((((value / item.unitPrice) - 1) * 100).toFixed(2));
+                    }
                 }
                 return updated;
             })
@@ -179,9 +184,11 @@ const EditPurchaseForm = ({ purchase }: { purchase: Purchase }) => {
                                             <span className="text-[10px] text-slate-300">৳</span>
                                             <input
                                                 type="number"
+                                                min="0"
+                                                step="0.01"
                                                 value={item.unitPrice}
-                                                disabled
-                                                className="w-20 rounded-md border border-slate-100 bg-slate-100 px-1.5 py-1 text-right text-xs text-slate-400 cursor-not-allowed"
+                                                onChange={(e) => updateItem(item._key, 'unitPrice', Number(e.target.value))}
+                                                className="w-20 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-1 text-right text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
                                             />
                                         </div>
                                     </td>
@@ -189,9 +196,11 @@ const EditPurchaseForm = ({ purchase }: { purchase: Purchase }) => {
                                         <div className="flex items-center justify-center gap-0.5">
                                             <input
                                                 type="number"
+                                                min="0"
+                                                step="0.1"
                                                 value={item.markupPercent ?? ''}
-                                                disabled
-                                                className="w-16 rounded-md border border-slate-100 bg-slate-100 px-1.5 py-1 text-center text-xs text-slate-400 cursor-not-allowed"
+                                                onChange={(e) => updateItem(item._key, 'markupPercent', Number(e.target.value))}
+                                                className="w-16 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-1 text-center text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
                                             />
                                             <span className="text-[10px] text-slate-300">%</span>
                                         </div>
@@ -201,9 +210,11 @@ const EditPurchaseForm = ({ purchase }: { purchase: Purchase }) => {
                                             <span className="text-[10px] text-slate-300">৳</span>
                                             <input
                                                 type="number"
+                                                min="0"
+                                                step="0.01"
                                                 value={item.sellingPrice != null ? Number(item.sellingPrice).toFixed(2) : ''}
-                                                disabled
-                                                className="w-20 rounded-md border border-slate-100 bg-slate-100 px-1.5 py-1 text-right text-xs text-slate-400 cursor-not-allowed"
+                                                onChange={(e) => updateItem(item._key, 'sellingPrice', Number(e.target.value))}
+                                                className="w-20 rounded-md border border-slate-200 bg-slate-50 px-1.5 py-1 text-right text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
                                             />
                                         </div>
                                     </td>

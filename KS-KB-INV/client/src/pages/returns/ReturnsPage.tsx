@@ -882,82 +882,82 @@ const ReturnsPage = () => {
                 </div>
 
                 <div className="mt-6 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                        <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                        <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
-                                <th className="py-3 pr-4">S/N</th>
-                                <th className="py-3 pr-4">Order Number</th>
-                                <th className="py-3 pr-4">Customer</th>
-                                <th className="py-3 pr-4">Return Numbers</th>
-                                <th className="py-3 pr-4">Supplier</th>
-                                <th className="py-3 pr-4">Total Amount</th>
-                                <th className="py-3 pr-4">Date</th>
-                                <th className="py-3 pr-4">Status</th>
-                                <th className="py-3">Actions</th>
+                                <th className="py-2.5 pr-4">S/N</th>
+                                <th className="py-2.5 pr-4">Order Number</th>
+                                <th className="py-2.5 pr-4">Customer</th>
+                                <th className="py-2.5 pr-4">Return Numbers</th>
+                                <th className="py-2.5 pr-4">Supplier</th>
+                                <th className="py-2.5 pr-4">Total Amount</th>
+                                <th className="py-2.5 pr-4">Date</th>
+                                <th className="py-2.5 pr-4">Status</th>
+                                <th className="py-2.5">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
                             {paginatedGroupedReturns.map((group, index) => (
                                 <tr key={group.orderNumber || `no-order-${index}`} className="transition hover:bg-slate-50/70">
-                                    <td className="py-4 pr-4 text-slate-400 text-xs">{index + 1}</td>
-                                    <td className="py-4 pr-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
-                                                <ArrowUturnLeftIcon className="h-5 w-5 text-orange-600" />
+                                    <td className="py-2.5 pr-4 text-slate-400">{index + 1}</td>
+                                    <td className="py-2.5 pr-4">
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100">
+                                                <ArrowUturnLeftIcon className="h-4 w-4 text-orange-600" />
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-blue-600">{group.orderNumber || 'N/A'}</p>
-                                                <p className="text-xs text-slate-400">
+                                                <p className="text-[10px] text-slate-400">
                                                     {group.returnCount} return{group.returnCount > 1 ? 's' : ''}
                                                 </p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="py-4 pr-4 text-slate-700">{group.customer?.name || 'N/A'}</td>
-                                    <td className="py-4 pr-4">
+                                    <td className="py-2.5 pr-4 text-slate-700">{group.customer?.name || 'N/A'}</td>
+                                    <td className="py-2.5 pr-4">
                                         <div className="space-y-1">
                                             {group.returns.slice(0, 2).map((ret) => (
-                                                <p key={ret._id} className="font-semibold text-orange-600 text-xs">
+                                                <p key={ret._id} className="font-semibold text-orange-600">
                                                     {ret.returnNumber}
                                                 </p>
                                             ))}
                                             {group.returns.length > 2 && (
-                                                <p className="text-xs text-slate-500 font-semibold">
+                                                <p className="text-[10px] text-slate-500 font-semibold">
                                                     +{group.returns.length - 2} more
                                                 </p>
                                             )}
                                         </div>
                                     </td>
-                                    <td className="py-4 pr-4 text-slate-700">
+                                    <td className="py-2.5 pr-4 text-slate-700">
                                         {group.supplierNames && group.supplierNames.length > 0 ? (
                                             <div className="space-y-1">
                                                 {group.supplierNames.slice(0, 2).map((supplier, idx) => (
-                                                    <p key={idx} className="text-sm font-medium">
+                                                    <p key={idx} className="font-medium">
                                                         {supplier}
                                                     </p>
                                                 ))}
                                                 {group.supplierNames.length > 2 && (
-                                                    <p className="text-xs text-slate-500">
+                                                    <p className="text-[10px] text-slate-500">
                                                         +{group.supplierNames.length - 2} more
                                                     </p>
                                                 )}
                                             </div>
                                         ) : (
-                                            <span className="text-sm text-slate-400">N/A</span>
+                                            <span className="text-slate-400">N/A</span>
                                         )}
                                     </td>
-                                    <td className="py-4 pr-4 font-semibold text-slate-900">
+                                    <td className="py-2.5 pr-4 font-semibold text-slate-900">
                                         ৳{group.totalAmount.toLocaleString()}
                                     </td>
-                                    <td className="py-4 pr-4 text-slate-600">
+                                    <td className="py-2.5 pr-4 text-slate-600">
                                         {group.earliestDate ? dayjs(group.earliestDate).format('YYYY-MM-DD') : 'N/A'}
                                     </td>
-                                    <td className="py-4 pr-4">
-                                        <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 whitespace-nowrap">
+                                    <td className="py-2.5 pr-4">
+                                        <span className="inline-flex items-center rounded-full px-3 py-1 text-[10px] font-semibold bg-emerald-100 text-emerald-800 whitespace-nowrap">
                                             ✓ Active
                                         </span>
                                     </td>
-                                    <td className="py-4">
+                                    <td className="py-2.5">
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={() => handleViewOrderReturns(group.orderNumber)}

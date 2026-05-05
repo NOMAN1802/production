@@ -689,15 +689,15 @@ const TransactionsPage = () => {
 
                 {/* Table */}
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                        <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                        <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
-                                <th className="py-3 pl-4 pr-4">S/N</th>
-                                <th className="py-3 pl-4">Transaction</th>
-                                <th className="py-3">Category</th>
-                                <th className="py-3">Date</th>
-                                <th className="py-3 text-right">Amount</th>
-                                <th className="py-3 pr-4 text-center">Actions</th>
+                                <th className="py-2.5 pl-4 pr-4">S/N</th>
+                                <th className="py-2.5 pl-4">Transaction</th>
+                                <th className="py-2.5">Category</th>
+                                <th className="py-2.5">Date</th>
+                                <th className="py-2.5 text-right">Amount</th>
+                                <th className="py-2.5 pr-4 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -710,28 +710,28 @@ const TransactionsPage = () => {
                             ) : (
                                 transactions.map((txn, idx) => (
                                     <tr key={txn._id} className="transition hover:bg-slate-50/60">
-                                        <td className="py-4 pl-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
-                                        <td className="py-4 pl-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="rounded-full bg-slate-50 p-2">
+                                        <td className="py-2.5 pl-4 pr-4 text-slate-400">{(page - 1) * limit + idx + 1}</td>
+                                        <td className="py-2.5 pl-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="rounded-full bg-slate-50 p-1.5">
                                                     {getIcon(txn.category)}
                                                 </div>
                                                 <div>
                                                     <p className="font-semibold text-slate-900">{txn.title}</p>
-                                                    <p className="text-xs text-slate-400">{txn.description || 'No description'}</p>
+                                                    <p className="text-[10px] text-slate-400">{txn.description || 'No description'}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="py-4">
+                                        <td className="py-2.5">
                                             {getCategoryBadge(txn.category)}
                                         </td>
-                                        <td className="py-4">
+                                        <td className="py-2.5">
                                             {dayjs(txn.date).format('DD MMM YYYY')}
                                         </td>
-                                        <td className="py-4 text-right font-bold text-slate-900">
+                                        <td className="py-2.5 text-right font-bold text-slate-900">
                                             ৳{txn.amount.toLocaleString()}
                                         </td>
-                                        <td className="py-4 pr-4 text-center">
+                                        <td className="py-2.5 pr-4 text-center">
                                             {txn.category !== 'product_purchase' && (
                                                 <button
                                                     onClick={() => setEditingTxn(txn)}
@@ -750,69 +750,51 @@ const TransactionsPage = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 sm:flex-row">
-                    <div className="text-sm text-slate-600">
-                        Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span> to{' '}
-                        <span className="font-semibold text-slate-900">
-                            {(() => {
-                                const hasFilters = categoryFilter || dateRange !== 'all';
-                                return hasFilters 
-                                    ? Math.min(page * limit, filteredTransactions.length)
-                                    : Math.min(page * limit, data?.meta?.total ?? 0);
-                            })()}
-                        </span>{' '}
-                        of <span className="font-semibold text-slate-900">
-                            {(() => {
-                                const hasFilters = categoryFilter || dateRange !== 'all';
-                                return hasFilters ? filteredTransactions.length : (data?.meta?.total ?? 0);
-                            })()}
-                        </span> entries
-                        {(categoryFilter || dateRange !== 'all') && (
-                            <span className="ml-2 text-xs text-slate-400">
-                                (filtered)
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page === 1}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                        >
-                            Previous
-                        </button>
-
-                        <div className="flex items-center gap-1">
-                            {getPageNumbers().map((pageNum, idx) =>
-                                pageNum === '...' ? (
-                                    <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">
-                                        ...
-                                    </span>
-                                ) : (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => handlePageChange(pageNum as number)}
-                                        className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum
-                                            ? 'bg-brand text-white shadow-lg shadow-brand/30'
-                                            : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                                            }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                )
-                            )}
+                {(() => {
+                    const hasFilters = categoryFilter || dateRange !== 'all';
+                    const total = hasFilters ? filteredTransactions.length : (data?.meta?.total ?? 0);
+                    return total > 0 && (
+                        <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-6">
+                            <p className="text-sm text-slate-600">
+                                Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span> to{' '}
+                                <span className="font-semibold text-slate-900">{Math.min(page * limit, total)}</span> of{' '}
+                                <span className="font-semibold text-slate-900">{total}</span> entries
+                                {hasFilters && (
+                                    <span className="ml-2 text-xs text-slate-400">(filtered)</span>
+                                )}
+                            </p>
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => handlePageChange(page - 1)}
+                                    disabled={page === 1}
+                                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Previous
+                                </button>
+                                {getPageNumbers().map((pageNum, idx) =>
+                                    pageNum === '...' ? (
+                                        <span key={`ellipsis-${idx}`} className="flex h-9 w-9 items-center justify-center text-sm text-slate-400">...</span>
+                                    ) : (
+                                        <button
+                                            key={pageNum}
+                                            onClick={() => handlePageChange(pageNum as number)}
+                                            className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum ? 'bg-brand text-white shadow-md shadow-brand/30' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+                                        >
+                                            {pageNum}
+                                        </button>
+                                    )
+                                )}
+                                <button
+                                    onClick={() => handlePageChange(page + 1)}
+                                    disabled={page === totalPages}
+                                    className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
-
-                        <button
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page === totalPages}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                        >
-                            Next
-                        </button>
-                    </div>
-                </div>
+                    );
+                })()}
             </section>
 
             {/* Edit Transaction Modal */}

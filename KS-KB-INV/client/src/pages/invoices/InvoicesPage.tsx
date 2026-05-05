@@ -666,18 +666,18 @@ const InvoicesPage = () => {
                 </div>
 
                 <div className="mt-6 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                        <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                        <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
-                                <th className="py-3 pr-4">S/N</th>
-                                {visibleColumns.orderId && <th className="py-3 pr-4">Order ID</th>}
-                                {visibleColumns.customer && <th className="py-3 pr-4">Customer</th>}
-                                {visibleColumns.date && <th className="py-3 pr-4">Created On</th>}
-                                {visibleColumns.amount && <th className="py-3 pr-4">Amount</th>}
-                                {visibleColumns.items && <th className="py-3 pr-4">Items</th>}
-                                {visibleColumns.viewPrint && <th className="py-3 pr-4">View/Print</th>}
-                                {visibleColumns.status && <th className="py-3 pr-4">Change Status</th>}
-                                {visibleColumns.actions && <th className="py-3">Actions</th>}
+                                <th className="py-2.5 pr-4">S/N</th>
+                                {visibleColumns.orderId && <th className="py-2.5 pr-4">Order ID</th>}
+                                {visibleColumns.customer && <th className="py-2.5 pr-4">Customer</th>}
+                                {visibleColumns.date && <th className="py-2.5 pr-4">Created On</th>}
+                                {visibleColumns.amount && <th className="py-2.5 pr-4">Amount</th>}
+                                {visibleColumns.items && <th className="py-2.5 pr-4">Items</th>}
+                                {visibleColumns.viewPrint && <th className="py-2.5 pr-4">View/Print</th>}
+                                {visibleColumns.status && <th className="py-2.5 pr-4">Change Status</th>}
+                                {visibleColumns.actions && <th className="py-2.5">Actions</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
@@ -735,20 +735,20 @@ const InvoicesPage = () => {
 
                                 return (
                                     <tr key={invoice._id} className="transition hover:bg-slate-50/60">
-                                        <td className="py-4 pr-4 text-slate-400 text-xs">{(page - 1) * limit + idx + 1}</td>
+                                        <td className="py-2.5 pr-4 text-slate-400">{(page - 1) * limit + idx + 1}</td>
                                         {visibleColumns.orderId && (
-                                            <td className="py-4 pr-4 font-semibold text-slate-900">{invoice.orderNumber}</td>
+                                            <td className="py-2.5 pr-4 font-semibold text-slate-900">{invoice.orderNumber}</td>
                                         )}
                                         {visibleColumns.customer && (
-                                            <td className="py-4 pr-4 font-medium text-slate-900">{invoice.customer?.name ?? 'Walk-in'}</td>
+                                            <td className="py-2.5 pr-4 font-medium text-slate-900">{invoice.customer?.name ?? 'Walk-in'}</td>
                                         )}
                                         {visibleColumns.date && (
-                                            <td className="py-4 pr-4 text-xs text-slate-500">
+                                            <td className="py-2.5 pr-4 text-slate-500">
                                                 {dayjs(invoice.createdAt).format('DD MMM YYYY')}
                                             </td>
                                         )}
                                         {visibleColumns.amount && (
-                                            <td className="py-4 pr-4">
+                                            <td className="py-2.5 pr-4">
                                                 {/* Show adjusted amount (grandTotal) instead of original totalAmount */}
                                                 <div className="font-semibold text-slate-900">
                                                     ৳{grandTotal.toLocaleString()}
@@ -782,17 +782,17 @@ const InvoicesPage = () => {
                                             </td>
                                         )}
                                         {visibleColumns.items && (
-                                            <td className="py-4 pr-4 text-slate-700">
+                                            <td className="py-2.5 pr-4 text-slate-700">
                                                 <div>{invoice.items?.length || 0} items</div>
                                                 {returnQuantity > 0 && (
-                                                    <div className="text-xs text-orange-600 mt-0.5">
+                                                    <div className="text-[10px] text-orange-600 mt-0.5">
                                                         Returned: {returnQuantity}
                                                     </div>
                                                 )}
                                             </td>
                                         )}
                                         {visibleColumns.viewPrint && (
-                                            <td className="py-4 pr-4">
+                                            <td className="py-2.5 pr-4">
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => setViewInvoiceId(invoice._id)}
@@ -812,7 +812,7 @@ const InvoicesPage = () => {
                                             </td>
                                         )}
                                         {visibleColumns.status && (
-                                            <td className="py-4 pr-4">
+                                            <td className="py-2.5 pr-4">
                                                 <div className="flex items-center gap-2">
                                                     <select
                                                         value={invoice.status}
@@ -867,7 +867,7 @@ const InvoicesPage = () => {
                                             </td>
                                         )}
                                         {visibleColumns.actions && (
-                                            <td className="py-4">
+                                            <td className="py-2.5">
                                                 <div className="flex items-center gap-2">
                                                     <button
                                                         onClick={() => navigate(`/returns/process?orderId=${invoice._id}&orderNumber=${invoice.orderNumber}`)}

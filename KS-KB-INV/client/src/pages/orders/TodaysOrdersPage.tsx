@@ -333,6 +333,37 @@ const TodaysOrdersPage = () => {
 
     const paginatedOrderSales = useMemo(() => orderWiseSales.slice((page - 1) * limit, page * limit), [orderWiseSales, page]);
 
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= Math.ceil(orderWiseSales.length / limit)) {
+            setPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    const getPageNumbers = () => {
+        const totalPages = Math.ceil(orderWiseSales.length / limit);
+        const pages: (number | string)[] = [];
+        const maxVisible = 10;
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else if (page <= 6) {
+            for (let i = 1; i <= maxVisible; i++) pages.push(i);
+            pages.push('...');
+            pages.push(totalPages);
+        } else if (page >= totalPages - 5) {
+            pages.push(1);
+            pages.push('...');
+            for (let i = totalPages - (maxVisible - 1); i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            pages.push('...');
+            for (let i = page - 2; i <= page + 2; i++) pages.push(i);
+            pages.push('...');
+            pages.push(totalPages);
+        }
+        return pages;
+    };
+
     // Calculate daily summary from orderWiseSales to stay consistent with the Grand Total section
     const dailySummary: DailySummary = useMemo(() => {
         const totalAmount = orderWiseSales.reduce((sum, order) => sum + order.orderAmount, 0);
@@ -921,16 +952,41 @@ const TodaysOrdersPage = () => {
                                 </div>
                             </div>
                         </div>
-                        {orderWiseSales.length > limit && (
-                            <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 print:hidden">
-                                <p className="text-xs text-slate-500">
-                                    Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span>–<span className="font-semibold text-slate-900">{Math.min(page * limit, orderWiseSales.length)}</span> of{' '}
-                                    <span className="font-semibold text-slate-900">{orderWiseSales.length}</span>
+                        {orderWiseSales.length > 0 && (
+                            <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-6 print:hidden">
+                                <p className="text-sm text-slate-600">
+                                    Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span> to{' '}
+                                    <span className="font-semibold text-slate-900">{Math.min(page * limit, orderWiseSales.length)}</span> of{' '}
+                                    <span className="font-semibold text-slate-900">{orderWiseSales.length}</span> entries
                                 </p>
-                                <div className="flex items-center gap-2">
-                                    <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Prev</button>
-                                    <span className="text-xs font-semibold text-slate-700">Page {page} of {Math.ceil(orderWiseSales.length / limit)}</span>
-                                    <button onClick={() => setPage(p => Math.min(Math.ceil(orderWiseSales.length / limit), p + 1))} disabled={page >= Math.ceil(orderWiseSales.length / limit)} className="rounded border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-40">Next</button>
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        onClick={() => handlePageChange(page - 1)}
+                                        disabled={page === 1}
+                                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                    >
+                                        Previous
+                                    </button>
+                                    {getPageNumbers().map((pageNum, idx) => (
+                                        pageNum === '...' ? (
+                                            <span key={`ellipsis-${idx}`} className="flex h-9 w-9 items-center justify-center text-sm text-slate-400">...</span>
+                                        ) : (
+                                            <button
+                                                key={pageNum}
+                                                onClick={() => handlePageChange(pageNum as number)}
+                                                className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum ? 'bg-brand text-white shadow-md shadow-brand/30' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
+                                            >
+                                                {pageNum}
+                                            </button>
+                                        )
+                                    ))}
+                                    <button
+                                        onClick={() => handlePageChange(page + 1)}
+                                        disabled={page === Math.ceil(orderWiseSales.length / limit)}
+                                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                    >
+                                        Next
+                                    </button>
                                 </div>
                             </div>
                         )}

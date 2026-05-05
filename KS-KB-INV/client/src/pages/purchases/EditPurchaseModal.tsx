@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useUpdatePurchaseMutation, type Purchase } from '@/services/purchasesApi';
 
@@ -19,6 +19,15 @@ type FormData = {
     notes: string;
 };
 
+type EditableItem = {
+    productName: string;
+    quantity: number;
+    unitPrice: string;
+    markupPercent: string;
+    sellingPrice: string;
+    totalPrice: number;
+};
+
 const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
     const [updatePurchase, { isLoading }] = useUpdatePurchaseMutation();
 
@@ -34,6 +43,17 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
         notes: purchase?.notes || '',
     });
 
+    const [editableItems, setEditableItems] = useState<EditableItem[]>(
+        (purchase?.items || []).map((item) => ({
+            productName: item.productName,
+            quantity: item.quantity,
+            unitPrice: String(item.unitPrice ?? ''),
+            markupPercent: String(item.markupPercent ?? ''),
+            sellingPrice: String(item.sellingPrice ?? ''),
+            totalPrice: item.totalPrice ?? 0,
+        }))
+    );
+
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
@@ -48,8 +68,31 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleItemChange = (index: number, field: keyof Pick<EditableItem, 'unitPrice' | 'markupPercent' | 'sellingPrice'>, value: string) => {
+        setEditableItems((prev) => {
+            const updated = [...prev];
+            const item = { ...updated[index], [field]: value };
+            const unitPrice = parseFloat(field === 'unitPrice' ? value : item.unitPrice) || 0;
+            const markupPercent = parseFloat(field === 'markupPercent' ? value : item.markupPercent) || 0;
+            if (field === 'unitPrice' || field === 'markupPercent') {
+                item.sellingPrice = markupPercent > 0 ? String((unitPrice * (1 + markupPercent / 100)).toFixed(2)) : item.sellingPrice;
+            }
+            item.totalPrice = unitPrice * item.quantity;
+            updated[index] = item;
+            return updated;
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const updatedItems = editableItems.map((item, i) => ({
+            ...purchase.items[i],
+            unitPrice: parseFloat(item.unitPrice) || purchase.items[i].unitPrice,
+            markupPercent: item.markupPercent !== '' ? parseFloat(item.markupPercent) : undefined,
+            sellingPrice: item.sellingPrice !== '' ? parseFloat(item.sellingPrice) : undefined,
+            totalPrice: (parseFloat(item.unitPrice) || purchase.items[i].unitPrice) * item.quantity,
+        }));
+        const newTotalAmount = updatedItems.reduce((sum, it) => sum + it.totalPrice, 0);
         try {
             await updatePurchase({
                 id: purchase._id,
@@ -66,6 +109,8 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
                     paidAmount: formData.paidAmount !== '' ? parseFloat(formData.paidAmount) : undefined,
                     paymentMethod: formData.paymentMethod || undefined,
                     notes: formData.notes || undefined,
+                    items: updatedItems,
+                    totalAmount: newTotalAmount,
                 },
             }).unwrap();
             onClose();
@@ -83,7 +128,7 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
             <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onClick={onClose} />
 
             {/* Modal */}
-            <div className="relative w-full max-w-xl rounded-2xl bg-white shadow-2xl">
+            <div className="relative w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
                 {/* Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
                     <div>
@@ -101,8 +146,8 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
                 {/* Form */}
                 <form onSubmit={handleSubmit}>
                     <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-5">
-                        {/* Purchase Items Summary (read-only) */}
-                        {purchase.items && purchase.items.length > 0 && (
+                        {/* Purchase Items — editable prices */}
+                        {editableItems.length > 0 && (
                             <div>
                                 <h3 className="text-sm font-bold text-slate-800 mb-3">Purchased Items</h3>
                                 <div className="rounded-xl border border-slate-100 overflow-hidden">
@@ -112,16 +157,51 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
                                                 <th className="text-left px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Product</th>
                                                 <th className="text-center px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Qty</th>
                                                 <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Unit Price</th>
+                                                <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Markup %</th>
+                                                <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Sell Price</th>
                                                 <th className="text-right px-3 py-2 text-slate-500 font-semibold uppercase tracking-wide">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-50">
-                                            {purchase.items.map((item, index) => (
+                                        <tbody className="divide-y divide-slate-100">
+                                            {editableItems.map((item, index) => (
                                                 <tr key={index} className="hover:bg-slate-50/50">
                                                     <td className="px-3 py-2 text-slate-700 font-medium">{item.productName}</td>
                                                     <td className="px-3 py-2 text-center text-slate-600">{item.quantity}</td>
-                                                    <td className="px-3 py-2 text-right text-slate-600">৳{(item.unitPrice || 0).toLocaleString()}</td>
-                                                    <td className="px-3 py-2 text-right font-semibold text-slate-900">৳{(item.totalPrice || 0).toLocaleString()}</td>
+                                                    <td className="px-3 py-1.5 text-right">
+                                                        <input
+                                                            type="number"
+                                                            value={item.unitPrice}
+                                                            onChange={(e) => handleItemChange(index, 'unitPrice', e.target.value)}
+                                                            min="0"
+                                                            step="0.01"
+                                                            className="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 py-1.5 text-right">
+                                                        <input
+                                                            type="number"
+                                                            value={item.markupPercent}
+                                                            onChange={(e) => handleItemChange(index, 'markupPercent', e.target.value)}
+                                                            min="0"
+                                                            step="0.1"
+                                                            placeholder="0"
+                                                            className="w-20 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 py-1.5 text-right">
+                                                        <input
+                                                            type="number"
+                                                            value={item.sellingPrice}
+                                                            onChange={(e) => handleItemChange(index, 'sellingPrice', e.target.value)}
+                                                            min="0"
+                                                            step="0.01"
+                                                            placeholder="0"
+                                                            className="w-24 rounded-lg border border-slate-200 bg-white px-2 py-1 text-right text-xs text-slate-900 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand/20"
+                                                        />
+                                                    </td>
+                                                    <td className="px-3 py-2 text-right font-semibold text-slate-900">
+                                                        ৳{item.totalPrice.toLocaleString()}
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -148,7 +228,9 @@ const EditPurchaseModal = ({ purchase, onClose }: EditPurchaseModalProps) => {
                                     )}
                                     <div className="flex justify-between font-bold text-slate-900 border-t border-slate-200 pt-1.5 mt-1">
                                         <span>Total Amount</span>
-                                        <span className="text-green-600">৳{(purchase.totalAmount || 0).toLocaleString()}</span>
+                                        <span className="text-green-600">
+                                            ৳{editableItems.reduce((sum, it) => sum + it.totalPrice, 0).toLocaleString()}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

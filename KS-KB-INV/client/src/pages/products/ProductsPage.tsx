@@ -260,36 +260,36 @@ const ProductsPage = () => {
                 </div>
 
                 <div className="mt-6 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-left text-sm">
-                        <thead className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                    <table className="min-w-full divide-y divide-slate-100 text-left text-xs">
+                        <thead className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                             <tr>
-                                <th className="py-3 pr-4">S/N</th>
-                                <th className="py-3 pr-4">Code</th>
-                                <th className="py-3 pr-4">Product</th>
-                                <th className="py-3 pr-4">Category</th>
-                                <th className="py-3 pr-4">Unit</th>
-                                <th className="py-3 pr-4">Quantity</th>
-                                <th className="py-3 pr-4">Selling Price</th>
-                                <th className="py-3 pr-4">Purchase Price</th>
-                                <th className="py-3">Actions</th>
+                                <th className="py-2.5 pr-4">S/N</th>
+                                <th className="py-2.5 pr-4">Code</th>
+                                <th className="py-2.5 pr-4">Product</th>
+                                <th className="py-2.5 pr-4">Category</th>
+                                <th className="py-2.5 pr-4">Unit</th>
+                                <th className="py-2.5 pr-4">Quantity</th>
+                                <th className="py-2.5 pr-4">Selling Price</th>
+                                <th className="py-2.5 pr-4">Purchase Price</th>
+                                <th className="py-2.5">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 text-slate-600">
                             {products.map((product, idx) => {
                                 return (
                                     <tr key={product._id} className="transition hover:bg-slate-50/70">
-                                        <td className="py-4 pr-4 text-slate-400 text-xs">{idx + 1}</td>
-                                        <td className="py-4 pr-4 font-semibold text-slate-900">{product.sku ?? '—'}</td>
-                                        <td className="py-4 pr-4">
+                                        <td className="py-2.5 pr-4 text-slate-400">{idx + 1}</td>
+                                        <td className="py-2.5 pr-4 font-semibold text-slate-900">{product.sku ?? '—'}</td>
+                                        <td className="py-2.5 pr-4">
                                             <p className="font-semibold text-slate-900">{product.name}</p>
-                                            <p className="text-xs text-slate-400">#{product._id.slice(-5)}</p>
+                                            <p className="text-[10px] text-slate-400">#{product._id.slice(-5)}</p>
                                         </td>
-                                        <td className="py-4 pr-4 text-slate-700">{product.categoryName ?? 'Unassigned'}</td>
-                                        <td className="py-4 pr-4 capitalize">{product.unit}</td>
-                                        <td className="py-4 pr-4 font-semibold text-slate-900">{product.stockQuantity}</td>
-                                        <td className="py-4 pr-4 font-semibold text-slate-900">৳{(product.sellingPrice ?? 0).toLocaleString()}</td>
-                                        <td className="py-4 pr-4">৳{(product.purchasePrice ?? 0).toLocaleString()}</td>
-                                        <td className="py-4">
+                                        <td className="py-2.5 pr-4 text-slate-700">{product.categoryName ?? 'Unassigned'}</td>
+                                        <td className="py-2.5 pr-4 capitalize">{product.unit}</td>
+                                        <td className="py-2.5 pr-4 font-semibold text-slate-900">{product.stockQuantity}</td>
+                                        <td className="py-2.5 pr-4 font-semibold text-slate-900">৳{(product.sellingPrice ?? 0).toLocaleString()}</td>
+                                        <td className="py-2.5 pr-4">৳{(product.purchasePrice ?? 0).toLocaleString()}</td>
+                                        <td className="py-2.5">
                                             <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => handleEdit(product._id)}
@@ -318,54 +318,44 @@ const ProductsPage = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="mt-6 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-6 sm:flex-row">
-                    <div className="text-sm text-slate-600">
-                        Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span> to{' '}
-                        <span className="font-semibold text-slate-900">
-                            {Math.min(page * limit, data?.total ?? 0)}
-                        </span>{' '}
-                        of <span className="font-semibold text-slate-900">{data?.total ?? 0}</span> entries
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => handlePageChange(page - 1)}
-                            disabled={page === 1}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                        >
-                            Previous
-                        </button>
-
-                        <div className="flex items-center gap-1">
+                {(data?.total ?? 0) > 0 && (
+                    <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-6">
+                        <p className="text-sm text-slate-600">
+                            Showing <span className="font-semibold text-slate-900">{(page - 1) * limit + 1}</span> to{' '}
+                            <span className="font-semibold text-slate-900">{Math.min(page * limit, data?.total ?? 0)}</span> of{' '}
+                            <span className="font-semibold text-slate-900">{data?.total ?? 0}</span> entries
+                        </p>
+                        <div className="flex items-center gap-1.5">
+                            <button
+                                onClick={() => handlePageChange(page - 1)}
+                                disabled={page === 1}
+                                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Previous
+                            </button>
                             {getPageNumbers().map((pageNum, idx) => (
                                 pageNum === '...' ? (
-                                    <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">
-                                        ...
-                                    </span>
+                                    <span key={`ellipsis-${idx}`} className="flex h-9 w-9 items-center justify-center text-sm text-slate-400">...</span>
                                 ) : (
                                     <button
                                         key={pageNum}
                                         onClick={() => handlePageChange(pageNum as number)}
-                                        className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum
-                                            ? 'bg-brand text-white shadow-lg shadow-brand/30'
-                                            : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-                                            }`}
+                                        className={`flex h-9 min-w-[36px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-all ${page === pageNum ? 'bg-brand text-white shadow-md shadow-brand/30' : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}
                                     >
                                         {pageNum}
                                     </button>
                                 )
                             ))}
+                            <button
+                                onClick={() => handlePageChange(page + 1)}
+                                disabled={page === totalPages}
+                                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                                Next
+                            </button>
                         </div>
-
-                        <button
-                            onClick={() => handlePageChange(page + 1)}
-                            disabled={page === totalPages}
-                            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
-                        >
-                            Next
-                        </button>
                     </div>
-                </div>
+                )}
             </section>
 
             {/* Delete Confirmation Modal */}

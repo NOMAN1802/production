@@ -229,16 +229,69 @@ const getPurchaseById = async (id: string) => {
 };
 
 const updatePurchase = async (id: string, payload: Partial<TPurchase>) => {
-  const result = await Purchase.findByIdAndUpdate(id, payload, {
-    new: true,
-    runValidators: true,
-  });
+  const session = await mongoose.startSession();
 
-  if (!result) {
-    throw new AppError(httpStatus.NOT_FOUND, "Purchase not found");
+  try {
+    session.startTransaction();
+
+    const existing = await Purchase.findById(id).session(session);
+    if (!existing) {
+      throw new AppError(httpStatus.NOT_FOUND, "Purchase not found");
+    }
+
+    // Adjust product stock and prices when items are updated
+    if (payload.items && payload.items.length > 0) {
+      for (const newItem of payload.items) {
+        const oldItem = existing.items.find(
+          (i) => String(i.product) === String(newItem.product)
+        );
+
+        const oldQty = oldItem?.quantity ?? 0;
+        const qtyDelta = newItem.quantity - oldQty;
+
+        const productUpdate: any = {
+          $set: { purchasePrice: newItem.unitPrice },
+        };
+        if (qtyDelta !== 0) {
+          productUpdate.$inc = { stockQuantity: qtyDelta };
+        }
+        if (newItem.sellingPrice !== undefined && newItem.sellingPrice !== null) {
+          productUpdate.$set.sellingPrice = newItem.sellingPrice;
+        }
+
+        await Product.findByIdAndUpdate(newItem.product, productUpdate, {
+          session,
+          new: true,
+        });
+      }
+    }
+
+    // Update the linked expense (transaction) amount when totalAmount changes
+    if (payload.totalAmount !== undefined) {
+      await Expense.findOneAndUpdate(
+        { referenceId: existing._id, referenceModel: "Purchase" },
+        {
+          amount: payload.totalAmount,
+          description: `Purchase of ${(payload.items ?? existing.items).length} product(s) from ${payload.supplier?.name ?? existing.supplier.name}`,
+        },
+        { session }
+      );
+    }
+
+    const result = await Purchase.findByIdAndUpdate(id, payload, {
+      new: true,
+      runValidators: true,
+      session,
+    });
+
+    await session.commitTransaction();
+    return result;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  return result;
 };
 
 const deletePurchase = async (id: string) => {
